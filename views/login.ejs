@@ -9,10 +9,20 @@
 </head>
 
 <body>
+    <ul>
+        <% if (messages.success_msg) { %>
+            <li>
+                <%= messages.success_msg %>
+            </li>
+            <% } %>
+    </ul>
+
+
+
     <main>
         <article style="max-width: 400px; margin: 3rem auto;">
             <h1>Login</h1>
-            <form method="POST" action="/login" novalidate>
+            <form method="POST" action="/login">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" required>
 
