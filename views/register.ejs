@@ -12,13 +12,22 @@
     <main>
         <article style="max-width: 400px; margin: 3rem auto;">
             <h1>Register</h1>
-            <form method="POST" action="/register">
+
+            <% if (typeof errors !== "undefined" && errors.length > 0) { %>
+                <ul style="background-color: #fee; border: 1px solid #fcc; border-radius: 5px; padding: 0.75rem 1rem; margin-bottom: 1rem; list-style: none; color: #c33;">
+                    <% errors.forEach(error => { %>
+                        <li style="margin: 0.25rem 0;"><%= error.message %></li>
+                    <% }) %>
+                </ul>
+            <% } %>
+
+            <form method="POST" action="/register" novalidate>
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" required>
 
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
-                
+
                 <input type="submit" value="Register">
             </form>
             <p style="text-align: center; margin-top: 1.5rem;">

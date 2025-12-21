@@ -11,5 +11,28 @@
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "pg": "^8.16.3"
-  }
+  },
+  "name": "studymatch",
+  "version": "1.0.0",
+  "description": "Building a platform to connect academically motivated students at UofT.",
+  "main": "server.js",
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dorjeematho-7/StudyMatch.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/dorjeematho-7/StudyMatch/issues"
+  },
+  "homepage": "https://github.com/dorjeematho-7/StudyMatch#readme"
 }
