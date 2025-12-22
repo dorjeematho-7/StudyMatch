@@ -4,7 +4,11 @@ const { pool } = require("./dbConfig")
 const bcrypt = require("bcrypt")
 const session = require("express-session")
 const flash = require("express-flash")
+const passport = require("passport")
 
+
+const initializePassport = require("./passportConfig")
+initializePassport(passport) //intialize function I created in passportConfig
 
 app.set("view engine", "ejs")
 app.use(express.static("public"))
@@ -24,15 +28,25 @@ app.use(session({
     saveUninitialized: false // we dont want to resave if no values are placed 
 }))
 
+app.use(passport.initialize())
+app.use(passport.session())
+
 app.use(flash())
 
 app.get("/login", (req, res) => {
     res.render("login")
-
 })
 app.get("/register", (req, res) => {
     res.render("register")
 })
+
+app.get("/homepage", (req, res) => {
+    res.render("homepage")
+})
+
+
+
+
 
 app.post('/register', async (req, res) => {
     let { email, password } = req.body;
@@ -105,5 +119,15 @@ app.post('/register', async (req, res) => {
         )
     }
 })
+//setting up user login 
+
+
+app.post("/login", passport.authenticate("local", { //authenticate users using the local strategy
+    successRedirect: "/homepage",
+    failureRedirect: "/login",
+    failureFlash: true
+}))
+
+
 
 app.listen(5000) //port set to 5000
