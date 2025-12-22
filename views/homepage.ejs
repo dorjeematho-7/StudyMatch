@@ -17,9 +17,29 @@
         </nav>
     </header>
     <main>
-        <h3>StudyMatch</h3>
-        <p>Find study partners @ UofT
-        </p>
+        <ul>
+            <% if (messages.error) { %>
+                <li>
+                    <%= messages.success_msg %>
+                </li>
+                <% } %>
+        </ul>
+
+
+
+
+
+
+        <% if (userLoggedIn) { %>
+            <a href="/logout">Logout</a>
+            <% } %>
+                <h3>StudyMatch</h3>
+                <p>StudyMatch is a student-focused web platform designed to help university students find compatible
+                    study partners and small study groups. It matches users based on factors like courses, availability,
+                    study habits, and goals, making it easier to connect with people who study in similar ways. The goal
+                    is to improve academic performance, accountability, and well-being by turning studying from an
+                    isolated task into a collaborative, supportive experience.
+                </p>
     </main>
     <footer>
         <small>&copy; Dorjees Website </small>

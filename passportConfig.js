@@ -41,7 +41,7 @@ const authenticateUser = (email, password, done) => {
 
 
 
-function initialize(passport) { //create a function to intialize the usernamefield and password field and then call authenticate user
+function initialize(passport) { //initialzing functions for passport
     passport.use(new LocalStrategy({
         usernameField: "email",
         passwordField: "password"
