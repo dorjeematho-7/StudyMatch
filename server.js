@@ -52,7 +52,7 @@ app.get("/logout", (req, res, next) => {
         }
     })
 })
-app.get("/preferences", checkAuthentication2, (req, res) => {
+app.get("/preferences", checkAuthentication2,checkPreferences, (req, res) => {
     res.render("preferences")
 })
 
@@ -188,4 +188,24 @@ function checkNotAuthenticated(req, res, next) {
     res.redirect("/login")
 
 }
+
+
+function checkPreferences(req, res, next){
+
+   pool.query(
+        `SELECT * FROM study_preferences WHERE user_id = $1`,[req.user.id], (err, result)=>{
+        if (err){
+            throw err
+        }
+
+        if (result.rowCount> 0){
+            res.redirect("/dashboard")
+        }else{
+            next()
+        }
+    }
+    )
+}
+
+
 app.listen(5000) //port set to 5000
