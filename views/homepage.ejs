@@ -1,79 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyMatch - Find Your Perfect Study Partner</title>
+    <title>Document</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
+
 <body>
     <header>
-        <div class="header-content">
-            <a href="/" class="logo">StudyMatch</a>
-            <nav>
-                <% if (userLoggedIn) { %>
-                    <a href="/dashboard">Dashboard</a>
-                    <a href="/logout" class="btn-logout">Logout</a>
-                <% } else { %>
-                    <a href="/login">Login</a>
-                    <a href="/register">Register</a>
-                <% } %>
-            </nav>
-        </div>
+        <h2><a href="/"> StudyMatch!</a></h2>
+        <nav>
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+        </nav>
     </header>
-
     <main>
-        <div class="hero">
-            <div class="container">
-                <h1>Welcome to StudyMatch</h1>
-                <p>Find your perfect study partner and build productive study groups. Connect with students who share your courses, schedule, and learning style.</p>
-                <% if (!userLoggedIn) { %>
-                    <div style="margin-top: 2rem;">
-                        <a href="/register" class="btn btn-primary">Get Started</a>
-                        <a href="/login" class="btn btn-secondary">Login</a>
-                    </div>
-                <% } else { %>
-                    <div style="margin-top: 2rem;">
-                        <a href="/dashboard" class="btn btn-primary" style="background-color: white; color: var(--primary);">Go to Dashboard</a>
-                    </div>
+        <ul>
+            <% if (messages.error) { %>
+                <li>
+                    <%= messages.success_msg %>
+                </li>
                 <% } %>
-            </div>
-        </div>
+        </ul>
 
-        <div class="container">
-            <section class="card" style="margin-bottom: 2rem;">
-                <h2>How It Works</h2>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-top: 2rem;">
-                    <div>
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
-                        <h3>Set Your Preferences</h3>
-                        <p class="text-muted">Tell us about your courses, availability, and preferred study style.</p>
-                    </div>
-                    <div>
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
-                        <h3>Find Matches</h3>
-                        <p class="text-muted">We'll match you with students who have similar study preferences.</p>
-                    </div>
-                    <div>
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">🤝</div>
-                        <h3>Start Studying</h3>
-                        <p class="text-muted">Connect with your matches and start productive study sessions together.</p>
-                    </div>
-                </div>
-            </section>
 
-            <section class="card">
-                <h2>About StudyMatch</h2>
-                <p>StudyMatch is a student-focused web platform designed to help university students find compatible study partners and small study groups. We match users based on factors like courses, availability, study habits, and goals, making it easier to connect with people who study in similar ways.</p>
-                <p>The goal is to improve academic performance, accountability, and well-being by turning studying from an isolated task into a collaborative, supportive experience.</p>
-            </section>
-        </div>
+
+
+
+
+        <% if (userLoggedIn) { %>
+            <a href="/logout">Logout</a>
+            <% } %>
+                <h3>StudyMatch</h3>
+                <p>StudyMatch is a student-focused web platform designed to help university students find compatible
+                    study partners and small study groups. It matches users based on factors like courses, availability,
+                    study habits, and goals, making it easier to connect with people who study in similar ways. The goal
+                    is to improve academic performance, accountability, and well-being by turning studying from an
+                    isolated task into a collaborative, supportive experience.
+                </p>
     </main>
-
     <footer>
-        <div class="container">
-            <p>&copy; 2024 StudyMatch. Created by a UofT student.</p>
-        </div>
+        <small>&copy; Dorjees Website </small>
     </footer>
 </body>
+
+
 </html>

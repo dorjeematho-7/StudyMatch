@@ -52,115 +52,43 @@ app.get("/logout", (req, res, next) => {
         }
     })
 })
-app.get("/preferences", checkAuthentication2, checkPreferences, (req, res) => {
+app.get("/preferences", checkAuthentication2,checkPreferences, (req, res) => {
     res.render("preferences")
 })
 
-app.get("/dashboard", checkAuthentication2, async (req, res, next) => {
-    try {
-        const userId = req.user.id;
-
-        // Get all users with their preferences
-        const usersResult = await pool.query(
-            `
-            SELECT
-                u.id,
-                u.username,
-                sp.courses,
-                sp.availability,
-                sp.study_style,
-                sp.study_format,
-                sp.location
-            FROM users u
-            JOIN study_preferences sp
-                ON u.id = sp.user_id
-            WHERE u.id != $1
-            `,
-            [userId]
-        );
-
-        // Get all friend requests sent by current user
-        const friendRequestsResult = await pool.query(
-            `
-            SELECT recipient_id, status
-            FROM friend_requests
-            WHERE sender_id = $1 
-            `,
-            [userId] //by checking where sender_id is 1 we can ensure that we only show the requests that the current user sent, not others
-        );
-
-        // Create a map of recipient IDs to their request status
-        //create requestStatusMap to have key(id) value(status) pairs for checking status of users that u sent requests too
-        //looped through each row and retrieved the status for a given userid from friendRequestsResult
-        const requestStatusMap = {};
-        friendRequestsResult.rows.forEach(row => {
-            requestStatusMap[row.recipient_id] = row.status
-        }
-        );
-
-
-
-        // Add request status to each user
-        const usersWithStatus = usersResult.rows.map(user => (
-            { ...user, friendRequestStatus: requestStatusMap[user.id] || null } //create a new array with the 
-            //user details copied over by using ...user, and we add the status of each friend request by adding it on
-        ));
-
-        res.render("dashboard", {
-            user: req.user,
-            users: usersWithStatus
-        });
-
-    } catch (err) {
-        next(err);
-    }
-});
-
-
-
+app.get("/dashboard", checkAuthentication2, (req, res) => {
+    res.render("dashboard")
+})
 
 app.post('/register', async (req, res) => {
-    let { email, password, username } = req.body;
+    let { email, password } = req.body;
     // Trim whitespace from email to prevent matching issues
-    email = email.trim()
+    email = email.trim().toLowerCase();
 
     let errors = []
 
-    if (!username || !email || !password) {
-        errors.push({ message: "you must fill in all the fields" });
-    }
 
-    if (username.length < 3) {
-        errors.push({ message: "username must be at least 3 characters long" });
+    if (!email || !password) {
+        errors.push({ message: "you must fill in all the fields" })
     }
-
-    if (username.length > 20) {
-        errors.push({ message: "username must be less than 20 characters" });
-    }
-
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-        errors.push({
-            message: "username can only contain letters, numbers, and underscores"
-        });
-    }
-
     if (password.length < 6) {
-        errors.push({ message: "password length must be larger than 6 characters" });
+        errors.push({ message: "password length must be larger than 6 characters" })
     }
-
     if (password.length > 20) {
-        errors.push({ message: "password length must be shorter than 20 characters" });
+        errors.push({ message: "password length shorter than 20 characters" })
     }
-
     if (email.length > 40) {
         errors.push({
             message: "email length must be less than 40 characters"
-        });
+        })
     }
 
     if (!email.includes("@")) {
-        errors.push({ message: "email must contain @" });
+        errors.push({ message: "email must contain @" })
     }
+
+
+
 
     if (errors.length > 0) {
         res.render("register", { errors })
@@ -169,37 +97,27 @@ app.post('/register', async (req, res) => {
         // validation is passed
         let hashedPassword = await bcrypt.hash(password, 10)
 
-        //check if email/username is identical (case-insensitive comparison)
+        //check if email is identical (case-insensitive comparison)
         pool.query(
             `SELECT * FROM users 
-        WHERE email = $1 OR username = $2`,
-            [email, username],
+        WHERE email = $1`,
+            [email],
             (err, results) => {
                 if (err) {
                     throw err
                 }
-                const emailTaken = results.rows.some(user => user.email === email)
-                const usernameTaken = results.rows.some(user => user.username === username)
-
-                if (results.rows.length > 0) {
-
-                    if (emailTaken) {
-                        errors.push({ message: "Email already taken" })
-                        return res.render("register", { errors })
-                    }
-                    if (usernameTaken) {
-                        errors.push({ message: "Username already taken" })
-                        return res.render("register", { errors })
-                    }
-
+                else if (results.rows.length > 0) {
+                    errors.push({ message: "Email already taken" })
+                    res.render("register", { errors })
                 } else {
                     pool.query(
-                        `INSERT INTO users (email, password, username)
-                        VALUES ($1, $2, $3)
-                        RETURNING id, password`, [email, hashedPassword, username], (err, result) => {
+                        `INSERT INTO users (email, password)
+                        VALUES ($1, $2)
+                        RETURNING id, password`, [email, hashedPassword], (err, result) => {
                         if (err) {
                             throw err
                         }
+                        console.log(results.rows);
                         req.flash("success_msg", "You are now registered. Please log in")
                         res.redirect("/login")
 
@@ -238,7 +156,7 @@ function checkAuthentication2(req, res, next) { //allows user to progress to nex
 }
 
 
-app.post("/preferences", checkAuthentication2, (req, res) => {
+app.post("/preferences", (req, res) => {
     let { courses, availability, study_style, study_format, location } = req.body
     const user_id = req.user.id
 
@@ -258,47 +176,34 @@ app.post("/preferences", checkAuthentication2, (req, res) => {
         }
     }
     )
-    res.redirect("/dashboard")
+    res.render("dashboard")
 })
 
-app.post("/friend-request", checkAuthentication2, (req, res, next) => {
-    const sender_id = req.user.id;
-    const recipient_id = req.body.recipient_id;
+function checkNotAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
 
-    // Validate recipient_id exists
-    if (!recipient_id) {
-        req.flash("error", "Recipient ID is required");
-        return res.redirect("/dashboard");
     }
+    
+    res.redirect("/login")
 
-    pool.query(
-        `INSERT INTO friend_requests (sender_id, recipient_id, status)
-        VALUES ($1, $2, 'pending')`,
-        [sender_id, recipient_id],
-        (err, result) => {
-            if (err) {
-                return next(err);
-            }
-            req.flash("success_msg", "Friend request sent!");
-            res.redirect("/dashboard");
+}
+
+
+function checkPreferences(req, res, next){
+
+   pool.query(
+        `SELECT * FROM study_preferences WHERE user_id = $1`,[req.user.id], (err, result)=>{
+        if (err){
+            throw err
         }
-    );
-});
 
-function checkPreferences(req, res, next) {
-
-    pool.query(
-        `SELECT * FROM study_preferences WHERE user_id = $1`, [req.user.id], (err, result) => {
-            if (err) {
-                throw err
-            }
-
-            if (result.rowCount > 0) {
-                res.redirect("/dashboard")
-            } else {
-                next()
-            }
+        if (result.rowCount> 0){
+            res.redirect("/dashboard")
+        }else{
+            next()
         }
+    }
     )
 }
 

@@ -1,92 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - StudyMatch</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
+
 <body>
-    <header>
-        <div class="header-content">
-            <a href="/" class="logo">StudyMatch</a>
-            <nav>
-                <a href="/register">Register</a>
-                <a href="/">Home</a>
-            </nav>
-        </div>
-    </header>
+    <ul>
+        <% if (messages.success_msg) { %>
+            <li>
+                <%= messages.success_msg %>
+            </li>
+            <% } %>
+    </ul>
 
-    <main>
-        <div class="form-container">
-            <div class="text-center" style="margin-bottom: 2rem;">
-                <h1>Welcome Back</h1>
-                <p class="text-muted">Sign in to your StudyMatch account</p>
-            </div>
+    <ul>
+        <% if (messages.error) { %>
+            <li>
+                <%= messages.error %>
+            </li>
+            <% } %>
+    </ul>
 
-            <div class="flash-messages">
-                <% if (typeof messages !== 'undefined') { %>
-                    <% if (messages.success_msg) { %>
-                        <div class="flash-message flash-success">
-                            <span>✓</span>
-                            <span><%= messages.success_msg %></span>
-                        </div>
-                    <% } %>
-                    <% if (messages.error) { %>
-                        <div class="flash-message flash-error">
-                            <span>✗</span>
-                            <span><%= messages.error %></span>
-                        </div>
-                    <% } %>
-                    <% if (messages.error_msg) { %>
-                        <div class="flash-message flash-error">
-                            <span>✗</span>
-                            <span><%= messages.error_msg %></span>
-                        </div>
-                    <% } %>
-                <% } %>
-            </div>
 
-            <form method="POST" action="/login">
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        placeholder="Enter your email"
-                        required 
-                        autocomplete="email"
-                    >
-                </div>
+            <main>
+                <article style="max-width: 400px; margin: 3rem auto;">
+                    <h1>Login</h1>
+                    <form method="POST" action="/login">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
 
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        placeholder="Enter your password"
-                        required
-                        autocomplete="current-password"
-                    >
-                </div>
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
 
-                <input type="submit" value="Sign In">
-            </form>
-
-            <div class="text-center" style="margin-top: 1.5rem;">
-                <p class="text-muted">
-                    Don't have an account? <a href="/register">Create one here</a>
-                </p>
-            </div>
-        </div>
-    </main>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2024 StudyMatch. Created by a UofT student.</p>
-        </div>
-    </footer>
+                        <input type="submit" value="Login">
+                    </form>
+                    <p style="text-align: center; margin-top: 1.5rem;">
+                        Don't have an account? <a href="/register">Register</a>
+                    </p>
+                </article>
+            </main>
 </body>
+
 </html>

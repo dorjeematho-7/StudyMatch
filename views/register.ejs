@@ -1,105 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - StudyMatch</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
+
 <body>
-    <header>
-        <div class="header-content">
-            <a href="/" class="logo">StudyMatch</a>
-            <nav>
-                <a href="/login">Login</a>
-                <a href="/">Home</a>
-            </nav>
-        </div>
-    </header>
-
     <main>
-        <div class="form-container">
-            <div class="text-center" style="margin-bottom: 2rem;">
-                <h1>Create Account</h1>
-                <p class="text-muted">Join StudyMatch and find your study partner today</p>
-            </div>
+        <article style="max-width: 400px; margin: 3rem auto;">
+            <h1>Register</h1>
 
-            <% if (typeof errors !== "undefined" && errors.length > 0) { %>
-                <div class="flash-messages">
-                    <div class="flash-message flash-error">
-                        <span>✗</span>
-                        <div>
-                            <% errors.forEach(error => { %>
-                                <div><%= error.message %></div>
-                            <% }) %>
-                        </div>
-                    </div>
-                </div>
-            <% } %>
+            <% if (typeof errors !=="undefined" && errors.length> 0) { %>
+                <ul
+                    style="background-color: #fee; border: 1px solid #fcc; border-radius: 5px; padding: 0.75rem 1rem; margin-bottom: 1rem; list-style: none; color: #c33;">
+                    <% errors.forEach(error=> { %>
+                        <li style="margin: 0.25rem 0;">
+                            <%= error.message %>
+                        </li>
+                        <% }) %>
+                </ul>
+                <% } %>
 
-            <form method="POST" action="/register" novalidate>
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input 
-                        type="text" 
-                        id="username" 
-                        name="username" 
-                        placeholder="Choose a username"
-                        required
-                        autocomplete="username"
-                        minlength="3"
-                        maxlength="20"
-                    >
-                    <small class="text-muted" style="font-size: 0.85rem; display: block; margin-top: 0.25rem;">
-                        3-20 characters, letters, numbers, and underscores only
-                    </small>
-                </div>
+                    <form method="POST" action="/register" novalidate>
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
 
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        placeholder="Enter your email"
-                        required
-                        autocomplete="email"
-                        maxlength="40"
-                    >
-                </div>
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
 
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        placeholder="Create a password"
-                        required
-                        autocomplete="new-password"
-                        minlength="6"
-                        maxlength="20"
-                    >
-                    <small class="text-muted" style="font-size: 0.85rem; display: block; margin-top: 0.25rem;">
-                        6-20 characters
-                    </small>
-                </div>
-
-                <input type="submit" value="Create Account">
-            </form>
-
-            <div class="text-center" style="margin-top: 1.5rem;">
-                <p class="text-muted">
-                    Already have an account? <a href="/login">Sign in here</a>
-                </p>
-            </div>
-        </div>
+                        <input type="submit" value="Register">
+                    </form>
+                    <p style="text-align: center; margin-top: 1.5rem;">
+                        Already have an account? <a href="/login">Login</a>
+                    </p>
+        </article>
     </main>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2024 StudyMatch. Created by a UofT student.</p>
-        </div>
-    </footer>
 </body>
+
 </html>
