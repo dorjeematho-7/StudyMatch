@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt")
 const session = require("express-session")
 const flash = require("express-flash")
 const passport = require("passport")
-
+//
 
 const initializePassport = require("./passportConfig")
 initializePassport(passport) //intialize function I created in passportConfig
