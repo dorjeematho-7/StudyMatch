@@ -60,14 +60,15 @@ function initialize(passport) { //initialzing functions for passport
         pool.query(
             `SELECT * FROM users WHERE id = $1`, [id], (err, results) => {
                 if (err) {
-                    throw err
+                    return done(err, null)
                 }
-                else {
+                if (results.rows.length > 0) {
                     return done(null, results.rows[0])//grab the result and deserialize it
+                } else {
+                    // User no longer exists in database, invalidate session
+                    return done(null, null)
                 }
-
             }
-
         )
     })
 }

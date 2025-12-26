@@ -1,43 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - StudyMatch</title>
     <link rel="stylesheet" href="/styles.css">
+    <style>
+        .form-container {
+            max-width: 400px;
+            margin: 3rem auto;
+            padding: 2rem;
+        }
+        .form-container h1 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .form-container > p {
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+        .error-message {
+            background-color: #f8d7da;
+            border: var(--border-width) solid #f5c6cb;
+            color: #721c24;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: var(--standard-border-radius);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+        }
+        .form-group small {
+            display: block;
+            margin-top: 0.25rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        input[type="submit"] {
+            width: 100%;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            font-size: 1rem;
+        }
+        .text-center {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            text-decoration: none;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: var(--accent-bg);
+            border-bottom: var(--border-width) solid var(--border);
+        }
+        header nav {
+            display: flex;
+            gap: 1rem;
+        }
+        header nav a {
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border: var(--border-width) solid transparent;
+        }
+        header nav a:hover {
+            border-color: var(--accent);
+        }
+        body {
+            display: block;
+        }
+        body > * {
+            grid-column: 1;
+        }
+    </style>
 </head>
-
 <body>
+    <header>
+        <a href="/" class="logo">StudyMatch</a>
+        <nav>
+            <a href="/login">Login</a>
+            <a href="/">Home</a>
+        </nav>
+    </header>
+
     <main>
-        <article style="max-width: 400px; margin: 3rem auto;">
-            <h1>Register</h1>
+        <div class="form-container">
+            <h1>Create Account</h1>
+            <p>Join StudyMatch and find your study partner today</p>
 
-            <% if (typeof errors !=="undefined" && errors.length> 0) { %>
-                <ul
-                    style="background-color: #fee; border: 1px solid #fcc; border-radius: 5px; padding: 0.75rem 1rem; margin-bottom: 1rem; list-style: none; color: #c33;">
-                    <% errors.forEach(error=> { %>
-                        <li style="margin: 0.25rem 0;">
-                            <%= error.message %>
-                        </li>
-                        <% }) %>
-                </ul>
-                <% } %>
+            <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+                <div class="error-message">
+                    <% errors.forEach(error => { %>
+                        <div><%= error.message %></div>
+                    <% }) %>
+                </div>
+            <% } %>
 
-                    <form method="POST" action="/register" novalidate>
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required>
+            <form method="POST" action="/register" novalidate>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Choose a username" required autocomplete="username" minlength="3" maxlength="20">
+                    <small>3-20 characters, letters, numbers, and underscores only</small>
+                </div>
 
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" required>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required autocomplete="email" maxlength="40">
+                </div>
 
-                        <input type="submit" value="Register">
-                    </form>
-                    <p style="text-align: center; margin-top: 1.5rem;">
-                        Already have an account? <a href="/login">Login</a>
-                    </p>
-        </article>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create a password" required autocomplete="new-password" minlength="6" maxlength="20">
+                    <small>6-20 characters</small>
+                </div>
+
+                <input type="submit" value="Create Account">
+            </form>
+
+            <div class="text-center">
+                <p>Already have an account? <a href="/login">Sign in here</a></p>
+            </div>
+        </div>
     </main>
-</body>
 
+    <footer>
+        <p>&copy; 2024 StudyMatch. Created by a UofT student.</p>
+    </footer>
+</body>
 </html>

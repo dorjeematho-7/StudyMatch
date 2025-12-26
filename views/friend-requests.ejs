@@ -2,36 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard – StudyMatch</title>
+    <title>Friend Requests – StudyMatch</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/styles.css">
     <style>
-        .dashboard-container {
-            max-width: 1200px;
+        .friend-requests-container {
+            max-width: 900px;
             margin: 0 auto;
             padding: 2rem 1rem;
         }
-        .welcome-section {
+        .page-header {
             text-align: center;
             padding: 2rem;
             background-color: var(--accent-bg);
             border-radius: var(--standard-border-radius);
             margin-bottom: 2rem;
         }
-        .welcome-section h1 {
+        .page-header h1 {
             margin-bottom: 0.5rem;
         }
-        .welcome-section p {
+        .page-header p {
             color: var(--text-light);
             margin: 0;
         }
-        .users-grid {
+        .requests-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: 1fr;
             gap: 1.5rem;
             margin-top: 2rem;
         }
-        .user-card {
+        .request-card {
             border: var(--border-width) solid var(--border);
             border-radius: var(--standard-border-radius);
             padding: 1.5rem;
@@ -39,49 +39,71 @@
             display: flex;
             flex-direction: column;
         }
-        .user-card h3 {
+        .request-card h3 {
             margin-top: 0;
             margin-bottom: 1rem;
             padding-bottom: 0.75rem;
             border-bottom: var(--border-width) solid var(--border);
         }
-        .user-info {
+        .request-info {
             flex: 1;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
-        .user-info p {
+        .request-info p {
             margin: 0.75rem 0;
         }
-        .user-info strong {
+        .request-info strong {
             display: inline-block;
-            min-width: 100px;
+            min-width: 120px;
             font-weight: 600;
         }
-        .friend-request-btn {
+        .request-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        .request-actions form {
+            flex: 1;
+            margin: 0;
+        }
+        .btn-accept {
             width: 100%;
             padding: 0.75rem;
-            margin-top: auto;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-        .friend-request-btn:disabled {
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-        .friend-request-sent {
             background-color: #28a745;
-            border-color: #28a745;
+            border: var(--border-width) solid #28a745;
             color: white;
+            border-radius: var(--standard-border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
-        .friend-request-accepted {
-            background-color: #17a2b8;
-            border-color: #17a2b8;
+        .btn-accept:hover {
+            background-color: #218838;
+            border-color: #218838;
+        }
+        .btn-decline {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #dc3545;
+            border: var(--border-width) solid #dc3545;
             color: white;
+            border-radius: var(--standard-border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-decline:hover {
+            background-color: #c82333;
+            border-color: #c82333;
         }
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
             color: var(--text-light);
+        }
+        .empty-state p {
+            font-size: 1.1rem;
         }
         .flash-message {
             padding: 1rem;
@@ -131,8 +153,10 @@
         body > * {
             grid-column: 1;
         }
-        form {
-            margin: 0;
+        @media (max-width: 768px) {
+            .request-actions {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -148,10 +172,10 @@
     </header>
 
     <main>
-        <div class="dashboard-container">
-            <div class="welcome-section">
-                <h1>Welcome, <%= user.username %>!</h1>
-                <p>Browse other students and find your perfect study partners</p>
+        <div class="friend-requests-container">
+            <div class="page-header">
+                <h1>Friend Requests</h1>
+                <p>View and manage your incoming friend requests</p>
             </div>
 
             <% if (typeof messages !== 'undefined') { %>
@@ -167,49 +191,45 @@
                 <% } %>
             <% } %>
 
-            <% if (users.length === 0) { %>
+            <% if (typeof incomingRequests === 'undefined' || incomingRequests.length === 0) { %>
                 <div class="empty-state">
-                    <p>No other users available yet. Check back soon!</p>
+                    <p>No incoming friend requests at the moment.</p>
                 </div>
             <% } else { %>
-                <section class="users-grid">
-                    <% users.forEach(u => { %>
-                        <article class="user-card">
-                            <h3><%= u.username %></h3>
-                            <div class="user-info">
-                                <% if (u.courses) { %>
-                                    <p><strong>Courses:</strong> <%= u.courses %></p>
+                <section class="requests-grid">
+                    <% incomingRequests.forEach(request => { %>
+                        <article class="request-card">
+                            <h3><%= request.username %></h3>
+                            <div class="request-info">
+                                <% if (request.courses) { %>
+                                    <p><strong>Courses:</strong> <%= request.courses %></p>
                                 <% } %>
-                                <% if (u.availability) { %>
-                                    <p><strong>Availability:</strong> <%= u.availability %></p>
+                                <% if (request.availability) { %>
+                                    <p><strong>Availability:</strong> <%= request.availability %></p>
                                 <% } %>
-                                <% if (u.study_style) { %>
-                                    <p><strong>Study Style:</strong> <%= u.study_style %></p>
+                                <% if (request.study_style) { %>
+                                    <p><strong>Study Style:</strong> <%= request.study_style %></p>
                                 <% } %>
-                                <% if (u.study_format) { %>
-                                    <p><strong>Format:</strong> <%= u.study_format %></p>
+                                <% if (request.study_format) { %>
+                                    <p><strong>Format:</strong> <%= request.study_format %></p>
                                 <% } %>
-                                <% if (u.location) { %>
-                                    <p><strong>Location:</strong> <%= u.location %></p>
+                                <% if (request.location) { %>
+                                    <p><strong>Location:</strong> <%= request.location %></p>
                                 <% } %>
                             </div>
 
-                            <% if (u.friendRequestStatus === 'pending') { %>
-                                <button class="friend-request-btn friend-request-sent" disabled>
-                                    Friend Request Sent
-                                </button>
-                            <% } else if (u.friendRequestStatus === 'accepted') { %>
-                                <button class="friend-request-btn friend-request-accepted" disabled>
-                                    Friends ✓
-                                </button>
-                            <% } else { %>
-                                <form action="/friend-request" method="POST" style="margin: 0;">
-                                    <input type="hidden" name="recipient_id" value="<%= u.id %>">
-                                    <button type="submit" class="friend-request-btn">
-                                        Send Friend Request
-                                    </button>
+                            <div class="request-actions">
+                                <form action="/accept-friend-request" method="POST" style="margin: 0;">
+                                    <input type="hidden" name="request_id" value="<%= request.id || request.request_id %>">
+                                    <input type="hidden" name="sender_id" value="<%= request.sender_id || request.id %>">
+                                    <button type="submit" class="btn-accept">Accept</button>
                                 </form>
-                            <% } %>
+                                <form action="/decline-friend-request" method="POST" style="margin: 0;">
+                                    <input type="hidden" name="request_id" value="<%= request.id || request.request_id %>">
+                                    <input type="hidden" name="sender_id" value="<%= request.sender_id || request.id %>">
+                                    <button type="submit" class="btn-decline">Decline</button>
+                                </form>
+                            </div>
                         </article>
                     <% }) %>
                 </section>

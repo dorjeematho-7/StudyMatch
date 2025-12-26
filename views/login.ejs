@@ -1,48 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - StudyMatch</title>
     <link rel="stylesheet" href="/styles.css">
+    <style>
+        .form-container {
+            max-width: 400px;
+            margin: 3rem auto;
+            padding: 2rem;
+        }
+        .form-container h1 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .form-container > p {
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+        .flash-message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: var(--standard-border-radius);
+            border: var(--border-width) solid;
+        }
+        .flash-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .flash-error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+        }
+        input[type="submit"] {
+            width: 100%;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            font-size: 1rem;
+        }
+        .text-center {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            text-decoration: none;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: var(--accent-bg);
+            border-bottom: var(--border-width) solid var(--border);
+        }
+        header nav {
+            display: flex;
+            gap: 1rem;
+        }
+        header nav a {
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border: var(--border-width) solid transparent;
+        }
+        header nav a:hover {
+            border-color: var(--accent);
+        }
+        body {
+            display: block;
+        }
+        body > * {
+            grid-column: 1;
+        }
+    </style>
 </head>
-
 <body>
-    <ul>
-        <% if (messages.success_msg) { %>
-            <li>
-                <%= messages.success_msg %>
-            </li>
+    <header>
+        <a href="/" class="logo">StudyMatch</a>
+        <nav>
+            <a href="/register">Register</a>
+            <a href="/">Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="form-container">
+            <h1>Welcome Back</h1>
+            <p>Sign in to your StudyMatch account</p>
+
+            <% if (typeof messages !== 'undefined') { %>
+                <% if (messages.success_msg) { %>
+                    <div class="flash-message flash-success">
+                        <%= messages.success_msg %>
+                    </div>
+                <% } %>
+                <% if (messages.error) { %>
+                    <div class="flash-message flash-error">
+                        <%= messages.error %>
+                    </div>
+                <% } %>
+                <% if (messages.error_msg) { %>
+                    <div class="flash-message flash-error">
+                        <%= messages.error_msg %>
+                    </div>
+                <% } %>
             <% } %>
-    </ul>
 
-    <ul>
-        <% if (messages.error) { %>
-            <li>
-                <%= messages.error %>
-            </li>
-            <% } %>
-    </ul>
+            <form method="POST" action="/login">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required autocomplete="email">
+                </div>
 
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+                </div>
 
-            <main>
-                <article style="max-width: 400px; margin: 3rem auto;">
-                    <h1>Login</h1>
-                    <form method="POST" action="/login">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required>
+                <input type="submit" value="Sign In">
+            </form>
 
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" required>
+            <div class="text-center">
+                <p>Don't have an account? <a href="/register">Create one here</a></p>
+            </div>
+        </div>
+    </main>
 
-                        <input type="submit" value="Login">
-                    </form>
-                    <p style="text-align: center; margin-top: 1.5rem;">
-                        Don't have an account? <a href="/register">Register</a>
-                    </p>
-                </article>
-            </main>
+    <footer>
+        <p>&copy; 2024 StudyMatch. Created by a UofT student.</p>
+    </footer>
 </body>
-
 </html>

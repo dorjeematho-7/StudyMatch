@@ -1,50 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>StudyMatch - Find Your Perfect Study Partner</title>
     <link rel="stylesheet" href="/styles.css">
+    <style>
+        .hero {
+            text-align: center;
+            padding: 4rem 1rem;
+            background: linear-gradient(135deg, var(--accent-bg) 0%, var(--bg) 100%);
+        }
+        .hero h1 {
+            margin-bottom: 1rem;
+        }
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        .feature {
+            padding: 1.5rem;
+        }
+        .feature h3 {
+            margin-top: 1rem;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            text-decoration: none;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: var(--accent-bg);
+            border-bottom: var(--border-width) solid var(--border);
+        }
+        header nav {
+            display: flex;
+            gap: 1rem;
+        }
+        header nav a {
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border: var(--border-width) solid transparent;
+        }
+        header nav a:hover {
+            border-color: var(--accent);
+        }
+        body {
+            display: block;
+        }
+        body > * {
+            grid-column: 1;
+        }
+    </style>
 </head>
-
 <body>
     <header>
-        <h2><a href="/"> StudyMatch!</a></h2>
+        <a href="/" class="logo">StudyMatch</a>
         <nav>
-            <a href="/login">Login</a>
-            <a href="/register">Register</a>
+            <% if (userLoggedIn) { %>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/logout">Logout</a>
+            <% } else { %>
+                <a href="/login">Login</a>
+                <a href="/register">Register</a>
+            <% } %>
         </nav>
     </header>
+
     <main>
-        <ul>
-            <% if (messages.error) { %>
-                <li>
-                    <%= messages.success_msg %>
-                </li>
-                <% } %>
-        </ul>
-
-
-
-
-
-
-        <% if (userLoggedIn) { %>
-            <a href="/logout">Logout</a>
+        <div class="hero">
+            <h1>Welcome to StudyMatch</h1>
+            <p>Find your perfect study partner and build productive study groups. Connect with students who share your courses, schedule, and learning style.</p>
+            <% if (!userLoggedIn) { %>
+                <div class="cta-buttons">
+                    <a href="/register" class="button">Get Started</a>
+                    <a href="/login" class="button">Login</a>
+                </div>
+            <% } else { %>
+                <div class="cta-buttons">
+                    <a href="/dashboard" class="button">Go to Dashboard</a>
+                </div>
             <% } %>
-                <h3>StudyMatch</h3>
-                <p>StudyMatch is a student-focused web platform designed to help university students find compatible
-                    study partners and small study groups. It matches users based on factors like courses, availability,
-                    study habits, and goals, making it easier to connect with people who study in similar ways. The goal
-                    is to improve academic performance, accountability, and well-being by turning studying from an
-                    isolated task into a collaborative, supportive experience.
-                </p>
+        </div>
+
+        <section>
+            <h2>How It Works</h2>
+            <div class="features">
+                <article class="feature">
+                    <h3>📚 Set Your Preferences</h3>
+                    <p>Tell us about your courses, availability, and preferred study style.</p>
+                </article>
+                <article class="feature">
+                    <h3>🔍 Find Matches</h3>
+                    <p>We'll match you with students who have similar study preferences.</p>
+                </article>
+                <article class="feature">
+                    <h3>🤝 Start Studying</h3>
+                    <p>Connect with your matches and start productive study sessions together.</p>
+                </article>
+            </div>
+        </section>
+
+        <section>
+            <h2>About StudyMatch</h2>
+            <p>StudyMatch is a student-focused web platform designed to help university students find compatible study partners and small study groups. We match users based on factors like courses, availability, study habits, and goals, making it easier to connect with people who study in similar ways.</p>
+            <p>The goal is to improve academic performance, accountability, and well-being by turning studying from an isolated task into a collaborative, supportive experience.</p>
+        </section>
     </main>
+
     <footer>
-        <small>&copy; Dorjees Website </small>
+        <p>&copy; 2024 StudyMatch. Created by a UofT student.</p>
     </footer>
 </body>
-
-
 </html>
