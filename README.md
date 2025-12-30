@@ -7,7 +7,7 @@ Many university students struggle to find reliable and compatible study partners
 
 **How it works**
 
-The application manages user authentication, profile data, and connection requests through a Node.js backend with the Express framework and a PostgreSQL database, enabling persistent profiles and stateful interactions. Once connected, students can coordinate study sessions through the platform, providing a structured and reliable alternative to ad-hoc group chats or forum posts.
+The application manages user authentication, profile data, and connection requests through a Node.js backend with the Express framework and a PostgreSQL database, enabling persistent profiles and stateful interactions. Once connected, students can coordinate study sessions through the platform, providing a structured and reliable alternative to group chats or forum posts.
 
 
 Below is the front page:
