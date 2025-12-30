@@ -16,12 +16,11 @@ Below is the front page:
 The user authentication process:
 StudyMatch uses a secure, session-based authentication system to manage user access. When a user registers, their password is hashed before being stored in the PostgreSQL database. During login, credentials are validated on the server, and an authenticated session is established using Passport.js, allowing users to remain logged in across requests without exposing sensitive information to the client. Access to protected routes is restricted to authenticated users, ensuring that only logged-in students can view profiles, send study connection requests, or interact with platform features.
 
-<img width="429" height="739" alt="image" src="https://github.com/user-attachments/assets/15989b17-dcf9-4f34-bb78-c7cdfcd87224" />
-<img width="373" height="490" alt="image" src="https://github.com/user-attachments/assets/8e098c4e-b655-4a4b-9b95-af39cecf93b5" />
+<img width="200" height="400" alt="image" src="https://github.com/user-attachments/assets/15989b17-dcf9-4f34-bb78-c7cdfcd87224" />
 
 Furthermore, there is also password and email checks that ensure the user is entering a valid email and password, for example, the user cannot leave the password and email boxes blank or must enter a number of characters within a certain valid range
 
-
+<img width="200" height="400" alt="image" src="https://github.com/user-attachments/assets/8e098c4e-b655-4a4b-9b95-af39cecf93b5" />
 
 
 
