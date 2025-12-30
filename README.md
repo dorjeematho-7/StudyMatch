@@ -24,13 +24,14 @@ Furthermore, there is also password and email checks that ensure the user is ent
 
 **User Matching**
 Once logged in, users have the option to browse for other users with similar study preferences, of course, this page is only a rough draft and throughout the following semester many more feautures will be added such as profile pictures, improved visuals and more
-<img width="1133" height="969" alt="image" src="https://github.com/user-attachments/assets/7751db87-a298-4e1d-9c7c-de65a4186eea" />
+<img width="800" height="400" alt="image" src="https://github.com/user-attachments/assets/6310345b-8b28-4783-ad7c-a30b750d28c5" />
+
 
 **Friend Requests**
 
 When a user has sent a friend request, the recipient may see the request by selecting the friend request button at the top of the user matching page
 
-<img width="934" height="708" alt="image" src="https://github.com/user-attachments/assets/276ea515-6588-4e00-a498-dbc1a69784d8" />
+<img width="700" height="500" alt="image" src="https://github.com/user-attachments/assets/276ea515-6588-4e00-a498-dbc1a69784d8" />
 
 
 
