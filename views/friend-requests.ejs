@@ -220,13 +220,11 @@
 
                             <div class="request-actions">
                                 <form action="/accept-friend-request" method="POST" style="margin: 0;">
-                                    <input type="hidden" name="request_id" value="<%= request.id || request.request_id %>">
-                                    <input type="hidden" name="sender_id" value="<%= request.sender_id || request.id %>">
+                                    <input type="hidden" name="sender_id" value="<%= request.sender_id %>">
                                     <button type="submit" class="btn-accept">Accept</button>
                                 </form>
                                 <form action="/decline-friend-request" method="POST" style="margin: 0;">
-                                    <input type="hidden" name="request_id" value="<%= request.id || request.request_id %>">
-                                    <input type="hidden" name="sender_id" value="<%= request.sender_id || request.id %>">
+                                    <input type="hidden" name="sender_id" value="<%= request.sender_id %>">
                                     <button type="submit" class="btn-decline">Decline</button>
                                 </form>
                             </div>
