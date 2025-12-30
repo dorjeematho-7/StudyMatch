@@ -36,7 +36,7 @@ A table was formed by utilizing
 
 When a user has sent a friend request, the recipient may see the request by selecting the friend request button at the top of the user matching page
 
-<img width="200" height="400" alt="image" src="https://github.com/user-attachments/assets/276ea515-6588-4e00-a498-dbc1a69784d8" />
+<img width="300" height="600" alt="image" src="https://github.com/user-attachments/assets/276ea515-6588-4e00-a498-dbc1a69784d8" />
 
 **User Messaging**
 Once two users have been matched, a chat feature will pop up, this is still in progress currently
