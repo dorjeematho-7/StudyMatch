@@ -1,5 +1,5 @@
 # StudyMatch
-Building a platform to connect academically motivated students at UofT. 
+Building a platform to connect academically motivated students at UofT. \n
 Updated Dec 30th 2025
 
 Problem Statement:
