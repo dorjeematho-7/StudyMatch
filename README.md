@@ -22,11 +22,11 @@ Furthermore, there is also password and email checks that ensure the user is ent
 
 <img width="200" height="400" alt="image" src="https://github.com/user-attachments/assets/8e098c4e-b655-4a4b-9b95-af39cecf93b5" />
 
-**User Matching**
+**User Matching:**
 Once logged in, users have the option to browse for other users with similar study preferences, of course, this page is only a rough draft and throughout the following semester many more feautures will be added such as profile pictures, improved visuals and more
 
-**displaying users**
-I fetched all users and joined them with their study preferences using the user’s ID. I then checked the friend_requests table to determine the current status between the logged-in user and each other user (for example, no request, request already sent, or request received). This status is added as an extra field to each user object, and the final array is passed to the EJS file so the frontend can display the correct button or state for each user.
+**Displaying users:**
+I got all the users and joined them with their study preferences using the user’s ID. I then checked the friend_requests table to determine the current status between the logged-in user and each other user (for example, no request, request already sent, or request received). This status is added as an extra field to each user object, and the final array is passed to the EJS file so the frontend can display the correct button or state for each user.
 A table was formed by utilizing 
 
 <img width="800" height="400" alt="image" src="https://github.com/user-attachments/assets/6310345b-8b28-4783-ad7c-a30b750d28c5" />
