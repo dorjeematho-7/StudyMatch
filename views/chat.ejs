@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat – StudyMatch</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .chat-list-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        .page-header {
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--accent-bg);
+            border-radius: var(--standard-border-radius);
+            margin-bottom: 2rem;
+        }
+        .page-header h1 {
+            margin-bottom: 0.5rem;
+        }
+        .page-header p {
+            color: var(--text-light);
+            margin: 0;
+        }
+        .chats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .chat-item {
+            border: var(--border-width) solid var(--border);
+            border-radius: var(--standard-border-radius);
+            padding: 1.5rem;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        .chat-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: var(--accent);
+        }
+        .chat-item-info {
+            flex: 1;
+        }
+        .chat-item h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.25rem;
+            color: var(--text);
+        }
+        .chat-item p {
+            margin: 0;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        .chat-arrow {
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin-left: 1rem;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-light);
+        }
+        .empty-state p {
+            font-size: 1.1rem;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            text-decoration: none;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: var(--accent-bg);
+            border-bottom: var(--border-width) solid var(--border);
+        }
+        header nav {
+            display: flex;
+            gap: 1rem;
+        }
+        header nav a {
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border: var(--border-width) solid transparent;
+        }
+        header nav a:hover {
+            border-color: var(--accent);
+        }
+        body {
+            display: block;
+        }
+        body > * {
+            grid-column: 1;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="logo">StudyMatch</a>
+        <nav>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/preferences">Preferences</a>
+            <a href="/friend-requests">Friend Requests</a>
+            <a href="/chat">Chat</a>
+            <a href="/logout">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="chat-list-container">
+            <div class="page-header">
+                <h1>Your Chats</h1>
+                <p>Select a friend to start chatting</p>
+            </div>
+
+            <% if (typeof chatResults === 'undefined' || chatResults.length === 0) { %>
+                <div class="empty-state">
+                    <p>No friends to chat with yet. Accept friend requests to start chatting!</p>
+                </div>
+            <% } else { %>
+                <section class="chats-grid">
+                    <% chatResults.forEach(chatUser => { %>
+                        <a href="/chat/<%= chatUser.sender_id %>" class="chat-item">
+                            <div class="chat-item-info">
+                                <h3><%= chatUser.username %></h3>
+                                <p>Click to start chatting</p>
+                            </div>
+                            <span class="chat-arrow">→</span>
+                        </a>
+                    <% }) %>
+                </section>
+            <% } %>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 StudyMatch. Created by a UofT student.</p>
+    </footer>
+</body>
+</html>

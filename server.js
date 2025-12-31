@@ -138,6 +138,28 @@ app.get("/friend-requests", checkAuthentication2, async (req, res, next) => {
     }
 });
 
+app.get("/chat", checkAuthentication2, async (req, res, next) => {
+    try {
+
+        const userId = req.user.id;
+
+        const chatResults = await pool.query(
+            //return an array that has the other users id and other users username to the frontend
+            `SELECT
+            friend_requests.sender_id,
+            users.username
+            FROM friend_requests
+            JOIN users
+            ON users.id = friend_requests.sender_id
+            WHERE friend_requests.status = 'accepted' 
+            AND recipient_id = $1
+            `,[userId]
+        )
+        res.render("chat", {chatResults: chatResults.rows})
+    } catch (err) {
+        next(err)
+    }
+})
 
 
 app.post('/register', async (req, res) => {
@@ -364,11 +386,6 @@ app.post("/decline-friend-request", checkAuthentication2, async (req, res, next)
         next(err)
     }
 })
-
-
-
-
-
 
 
 function checkPreferences(req, res, next) {
