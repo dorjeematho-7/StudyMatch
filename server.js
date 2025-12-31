@@ -306,6 +306,28 @@ app.post("/friend-request", checkAuthentication2, (req, res, next) => {
     );
 });
 
+//post request for the case when user clicks accept
+app.post("/accept-friend-request" , checkAuthentication2, (req, res, next)=>{
+    const sender_id = req.user.id;
+    const recipient_id = req.body.recipient_
+try{
+pool.query(
+    //find the row in friend requests that contains sender and recipient id and set the status to accepted
+    `UPDATE friend_requests
+     SET status = 'accepted'
+     WHERE sender_id = $1
+     AND recipient_id = $2
+     AND status = 'pending'
+    `,[sender_id,recipient_id]
+)
+//redirect to same page
+res.redirect("/friend-requests")
+}catch(err){
+    next(err)
+}
+})
+
+
 function checkPreferences(req, res, next) {
 
     pool.query(
