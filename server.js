@@ -119,7 +119,7 @@ app.get("/dashboard", checkAuthentication2, async (req, res, next) => {
 app.get("/friend-requests", checkAuthentication2, async (req, res, next) => {
     try {
         const userId = req.user.id;
-        
+
         const incomingRequests = await pool.query(
             `SELECT
                 friend_requests.sender_id,
@@ -307,25 +307,68 @@ app.post("/friend-request", checkAuthentication2, (req, res, next) => {
 });
 
 //post request for the case when user clicks accept
-app.post("/accept-friend-request" , checkAuthentication2, async (req, res, next)=>{
+app.post("/accept-friend-request", checkAuthentication2, async (req, res, next) => {
     const sender_id = req.body.sender_id;
     const recipient_id = req.user.id;
-try{
-await pool.query(
-    //find the row in friend requests that contains sender and recipient id and set the status to accepted
-    `UPDATE friend_requests
+    try {
+        await pool.query(
+            //find the row in friend requests that contains sender and recipient id and set the status to accepted
+            `UPDATE friend_requests
      SET status = 'accepted'
      WHERE sender_id = $1
      AND recipient_id = $2
      AND status = 'pending'
-    `,[sender_id,recipient_id]
-)
-//redirect to same page
-res.redirect("/friend-requests")
-}catch(err){
-    next(err)
-}
+    `, [sender_id, recipient_id]
+        )
+        //redirect to same page
+        res.redirect("/friend-requests")
+    } catch (err) {
+        next(err)
+    }
 })
+app.post("/accept-friend-request", checkAuthentication2, async (req, res, next) => {
+    const sender_id = req.body.sender_id;
+    const recipient_id = req.user.id;
+    try {
+        await pool.query(
+            //find the row in friend requests that contains sender and recipient id and set the status to accepted
+            `UPDATE friend_requests
+     SET status = 'accepted'
+     WHERE sender_id = $1
+     AND recipient_id = $2
+     AND status = 'pending'
+    `, [sender_id, recipient_id]
+        )
+        //redirect to same page
+        res.redirect("/friend-requests")
+    } catch (err) {
+        next(err)
+    }
+})
+app.post("/decline-friend-request", checkAuthentication2, async (req, res, next) => {
+    const sender_id = req.body.sender_id;
+    const recipient_id = req.user.id;
+    try {
+        await pool.query(
+            //find the row in friend requests that contains sender and recipient id and set the status to accepted
+            `UPDATE friend_requests
+     SET status = 'declined'
+     WHERE sender_id = $1
+     AND recipient_id = $2
+     AND status = 'pending'
+    `, [sender_id, recipient_id]
+        )
+        //redirect to same page
+        res.redirect("/friend-requests")
+    } catch (err) {
+        next(err)
+    }
+})
+
+
+
+
+
 
 
 function checkPreferences(req, res, next) {
