@@ -43,6 +43,7 @@ When a user has sent a friend request, the recipient may see the request by sele
 Once two users have been matched, a chat feature will pop up as shown below
 
 <img width="400" height="400" alt="image" src="https://github.com/user-attachments/assets/3ac17c39-8713-4539-81a0-176f590c5cc6" />
+
 This feature was straightforward to implement. I queried the friend_requests table for records with an 'accepted' status, joined them with the users table to retrieve usernames, and constructed an array containing each connected user’s ID and username.
 
 
