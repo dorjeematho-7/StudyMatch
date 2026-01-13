@@ -6,217 +6,376 @@
     <title>Study Preferences - StudyMatch</title>
     <link rel="stylesheet" href="/styles.css">
     <style>
-        .preferences-container {
-            max-width: 600px;
-            margin: 3rem auto;
-            padding: 2rem;
+        body {
+            background: var(--color-bg);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
         }
-        .preferences-container h1 {
-            text-align: center;
-            margin-bottom: 0.5rem;
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(0, 113, 227, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(118, 75, 162, 0.08) 0%, transparent 50%);
+            z-index: 0;
+            animation: gradient 20s ease infinite;
+            background-size: 200% 200%;
         }
-        .preferences-container > p {
-            text-align: center;
-            color: var(--text-light);
-            margin-bottom: 2rem;
+
+        .header-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
+
+        header {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 21px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+            text-decoration: none;
+            letter-spacing: -0.022em;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        header nav a {
+            padding: 8px 16px;
+            font-size: 17px;
+            color: var(--color-text-secondary);
+            border-radius: var(--radius-full);
+            transition: all var(--transition-fast);
+        }
+
+        header nav a:hover {
+            color: var(--color-text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        main {
+            padding: 100px 24px 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-container {
+            max-width: 680px;
+            margin: 0 auto;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .form-card {
+            background: var(--color-surface);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
+            padding: 48px;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .form-header {
+            margin-bottom: 40px;
+        }
+
+        .form-header h1 {
+            font-size: 40px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ffffff 0%, #a1a1a6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-header p {
+            font-size: 21px;
+            color: var(--color-text-secondary);
+        }
+
         .flash-message {
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: var(--standard-border-radius);
-            border: var(--border-width) solid;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            border-radius: var(--radius-md);
+            border: 1px solid;
+            font-size: 14px;
         }
+
         .flash-success {
-            background-color: #d4edda;
-            border-color: #c3e6cb;
-            color: #155724;
+            background: rgba(48, 209, 88, 0.1);
+            border-color: var(--color-success);
+            color: var(--color-success);
         }
+
         .flash-error {
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-            color: #721c24;
+            background: rgba(255, 59, 48, 0.1);
+            border-color: var(--color-error);
+            color: var(--color-error);
         }
+
         .form-group {
-            margin-bottom: 2rem;
+            margin-bottom: 32px;
         }
+
         .form-group label {
             display: block;
-            margin-bottom: 0.75rem;
-            font-weight: 600;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--color-text-primary);
         }
+
+        .form-group small {
+            display: block;
+            font-size: 13px;
+            color: var(--color-text-tertiary);
+            margin-top: 4px;
+        }
+
         .form-group input[type="text"],
         .form-group select {
             width: 100%;
-            padding: 0.75rem;
+            padding: 14px 18px;
+            font-size: 17px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            background: var(--color-bg-secondary);
+            color: var(--color-text-primary);
+            transition: all var(--transition-base);
         }
-        .form-group small {
-            display: block;
-            margin-top: 0.25rem;
-            color: var(--text-light);
-            font-size: 0.9rem;
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            background: var(--color-bg-tertiary);
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
         }
+
         .radio-group,
         .checkbox-group {
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 12px;
+            margin-top: 12px;
         }
+
         .radio-option,
         .checkbox-option {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 12px;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            background: var(--color-bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all var(--transition-base);
+            cursor: pointer;
         }
+
+        .radio-option:hover,
+        .checkbox-option:hover {
+            background: var(--color-bg-tertiary);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
         .radio-option input[type="radio"],
         .checkbox-option input[type="checkbox"] {
-            width: auto;
+            width: 20px;
+            height: 20px;
             margin: 0;
+            cursor: pointer;
+            accent-color: var(--color-accent);
         }
+
         .radio-option label,
         .checkbox-option label {
             margin: 0;
-            font-weight: normal;
+            font-weight: 400;
+            font-size: 17px;
             cursor: pointer;
+            flex: 1;
         }
+
         input[type="submit"] {
             width: 100%;
-            margin-top: 1rem;
-            padding: 0.75rem;
-            font-size: 1rem;
+            padding: 14px 22px;
+            margin-top: 8px;
+            font-size: 17px;
+            font-weight: 400;
+            border-radius: var(--radius-full);
+            border: none;
+            background: var(--color-accent);
+            color: white;
+            cursor: pointer;
+            transition: all var(--transition-base);
         }
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--accent);
-            text-decoration: none;
+
+        input[type="submit"]:hover {
+            background: var(--color-accent-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-            background-color: var(--accent-bg);
-            border-bottom: var(--border-width) solid var(--border);
+
+        footer {
+            padding: 40px 24px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--color-surface);
+            position: relative;
+            z-index: 1;
         }
-        header nav {
-            display: flex;
-            gap: 1rem;
+
+        footer p {
+            color: var(--color-text-tertiary);
+            font-size: 14px;
         }
-        header nav a {
-            padding: 0.5rem 1rem;
-            text-decoration: none;
-            border: var(--border-width) solid transparent;
-        }
-        header nav a:hover {
-            border-color: var(--accent);
-        }
-        body {
-            display: block;
-        }
-        body > * {
-            grid-column: 1;
+
+        @media (max-width: 768px) {
+            .form-card {
+                padding: 32px 24px;
+            }
+
+            .form-header h1 {
+                font-size: 32px;
+            }
         }
     </style>
 </head>
 <body>
-    <header>
-        <a href="/" class="logo">StudyMatch</a>
-        <nav>
-            <a href="/dashboard">Dashboard</a>
-            <a href="/logout">Logout</a>
-        </nav>
-    </header>
+    <div class="header-container">
+        <header>
+            <a href="/" class="logo">StudyMatch</a>
+            <nav>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/logout">Logout</a>
+            </nav>
+        </header>
+    </div>
 
     <main>
-        <div class="preferences-container">
-            <h1>Study Preferences</h1>
-            <p>Tell us how you like to study so we can match you with the perfect study partners.</p>
+        <div class="form-container">
+            <div class="form-card">
+                <div class="form-header">
+                    <h1>Study Preferences</h1>
+                    <p>Tell us how you like to study so we can match you with the perfect study partners.</p>
+                </div>
 
-            <% if (typeof messages !== 'undefined') { %>
-                <% if (messages.error) { %>
-                    <div class="flash-message flash-error">
-                        <%= messages.error %>
-                    </div>
+                <% if (typeof messages !== 'undefined') { %>
+                    <% if (messages.error) { %>
+                        <div class="flash-message flash-error">
+                            <%= messages.error %>
+                        </div>
+                    <% } %>
+                    <% if (messages.success_msg) { %>
+                        <div class="flash-message flash-success">
+                            <%= messages.success_msg %>
+                        </div>
+                    <% } %>
                 <% } %>
-                <% if (messages.success_msg) { %>
-                    <div class="flash-message flash-success">
-                        <%= messages.success_msg %>
+
+                <form action="/preferences" method="POST">
+                    <div class="form-group">
+                        <label for="courses">Courses to Study</label>
+                        <input 
+                            type="text" 
+                            id="courses" 
+                            name="courses" 
+                            placeholder="e.g. ECE244, MAT291, ECE241" 
+                            required
+                        >
+                        <small>Enter course codes separated by commas</small>
                     </div>
-                <% } %>
-            <% } %>
 
-            <form action="/preferences" method="POST">
-                <div class="form-group">
-                    <label for="courses">Courses to Study</label>
-                    <input type="text" id="courses" name="courses" placeholder="e.g. ECE244, MAT291, ECE241" required>
-                    <small>Enter course codes separated by commas</small>
-                </div>
-
-                <div class="form-group">
-                    <label>Preferred Study Format</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="format-in-person" name="study_format" value="in_person" required>
-                            <label for="format-in-person">In-person</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="format-online" name="study_format" value="online">
-                            <label for="format-online">Online</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="format-either" name="study_format" value="either">
-                            <label for="format-either">Either</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Availability</label>
-                    <small>Select all that apply</small>
-                    <div class="checkbox-group">
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="avail-mornings" name="availability" value="mornings">
-                            <label for="avail-mornings">Mornings</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="avail-afternoons" name="availability" value="afternoons">
-                            <label for="avail-afternoons">Afternoons</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="avail-evenings" name="availability" value="evenings">
-                            <label for="avail-evenings">Evenings</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="avail-weekends" name="availability" value="weekends">
-                            <label for="avail-weekends">Weekends</label>
+                    <div class="form-group">
+                        <label>Preferred Study Format</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="format-in-person" name="study_format" value="in_person" required>
+                                <label for="format-in-person">In-person</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="format-online" name="study_format" value="online">
+                                <label for="format-online">Online</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="format-either" name="study_format" value="either">
+                                <label for="format-either">Either</label>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label for="study_style">Study Style</label>
-                    <select id="study_style" name="study_style" required>
-                        <option value="">-- Select one --</option>
-                        <option value="silent">Silent / Independent</option>
-                        <option value="discussion">Light Discussion</option>
-                        <option value="problem_solving">Actively Solving Problems</option>
-                        <option value="teaching">Teaching / Explaining</option>
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label>Availability</label>
+                        <small>Select all that apply</small>
+                        <div class="checkbox-group">
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="avail-mornings" name="availability" value="mornings">
+                                <label for="avail-mornings">Mornings</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="avail-afternoons" name="availability" value="afternoons">
+                                <label for="avail-afternoons">Afternoons</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="avail-evenings" name="availability" value="evenings">
+                                <label for="avail-evenings">Evenings</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="avail-weekends" name="availability" value="weekends">
+                                <label for="avail-weekends">Weekends</label>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="form-group">
-                    <label for="location">Location Preference</label>
-                    <select id="location" name="location" required>
-                        <option value="">-- Select one --</option>
-                        <option value="on_campus">On Campus</option>
-                        <option value="library">Library</option>
-                        <option value="anywhere">Anywhere</option>
-                        <option value="online_only">Online Only</option>
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label for="study_style">Study Style</label>
+                        <select id="study_style" name="study_style" required>
+                            <option value="">-- Select one --</option>
+                            <option value="silent">Silent / Independent</option>
+                            <option value="discussion">Light Discussion</option>
+                            <option value="problem_solving">Actively Solving Problems</option>
+                            <option value="teaching">Teaching / Explaining</option>
+                        </select>
+                    </div>
 
-                <input type="submit" value="Save Preferences">
-            </form>
+                    <div class="form-group">
+                        <label for="location">Location Preference</label>
+                        <select id="location" name="location" required>
+                            <option value="">-- Select one --</option>
+                            <option value="on_campus">On Campus</option>
+                            <option value="library">Library</option>
+                            <option value="anywhere">Anywhere</option>
+                            <option value="online_only">Online Only</option>
+                        </select>
+                    </div>
+
+                    <input type="submit" value="Save Preferences">
+                </form>
+            </div>
         </div>
     </main>
 

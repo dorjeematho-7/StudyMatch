@@ -6,154 +6,288 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/styles.css">
     <style>
+        body {
+            background: var(--color-bg);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(0, 113, 227, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(118, 75, 162, 0.08) 0%, transparent 50%);
+            z-index: 0;
+            animation: gradient 20s ease infinite;
+            background-size: 200% 200%;
+        }
+
+        .header-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        header {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 21px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+            text-decoration: none;
+            letter-spacing: -0.022em;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        header nav a {
+            padding: 8px 16px;
+            font-size: 17px;
+            color: var(--color-text-secondary);
+            border-radius: var(--radius-full);
+            transition: all var(--transition-fast);
+        }
+
+        header nav a:hover {
+            color: var(--color-text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        main {
+            padding: 100px 24px 80px;
+            position: relative;
+            z-index: 1;
+        }
+
         .friend-requests-container {
             max-width: 900px;
             margin: 0 auto;
-            padding: 2rem 1rem;
+            animation: fadeIn 0.6s ease-out;
         }
+
         .page-header {
+            background: var(--gradient-accent);
+            border-radius: var(--radius-xl);
+            padding: 48px;
+            margin-bottom: 48px;
+            box-shadow: var(--shadow-xl);
             text-align: center;
-            padding: 2rem;
-            background-color: var(--accent-bg);
-            border-radius: var(--standard-border-radius);
-            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
         }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
         .page-header h1 {
-            margin-bottom: 0.5rem;
+            font-size: 48px;
+            margin-bottom: 8px;
+            color: white;
+            position: relative;
+            z-index: 1;
         }
+
         .page-header p {
-            color: var(--text-light);
-            margin: 0;
+            font-size: 21px;
+            color: rgba(255, 255, 255, 0.9);
+            position: relative;
+            z-index: 1;
         }
+
         .requests-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 1.5rem;
-            margin-top: 2rem;
+            gap: 24px;
         }
+
         .request-card {
-            border: var(--border-width) solid var(--border);
-            border-radius: var(--standard-border-radius);
-            padding: 1.5rem;
-            background-color: var(--bg);
-            display: flex;
-            flex-direction: column;
+            background: var(--color-surface);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
         }
+
+        .request-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-accent);
+            transform: scaleX(0);
+            transition: transform var(--transition-base);
+        }
+
+        .request-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .request-card:hover::before {
+            transform: scaleX(1);
+        }
+
         .request-card h3 {
-            margin-top: 0;
-            margin-bottom: 1rem;
-            padding-bottom: 0.75rem;
-            border-bottom: var(--border-width) solid var(--border);
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--color-text-primary);
         }
+
         .request-info {
-            flex: 1;
-            margin-bottom: 1.5rem;
+            margin-bottom: 24px;
         }
+
         .request-info p {
-            margin: 0.75rem 0;
+            font-size: 17px;
+            margin: 12px 0;
+            color: var(--color-text-secondary);
         }
+
         .request-info strong {
             display: inline-block;
             min-width: 120px;
             font-weight: 600;
+            color: var(--color-text-primary);
         }
+
         .request-actions {
             display: flex;
-            gap: 1rem;
+            gap: 12px;
         }
+
         .request-actions form {
             flex: 1;
             margin: 0;
         }
-        .btn-accept {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: #28a745;
-            border: var(--border-width) solid #28a745;
-            color: white;
-            border-radius: var(--standard-border-radius);
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .btn-accept:hover {
-            background-color: #218838;
-            border-color: #218838;
-        }
+
+        .btn-accept,
         .btn-decline {
             width: 100%;
-            padding: 0.75rem;
-            background-color: #dc3545;
-            border: var(--border-width) solid #dc3545;
-            color: white;
-            border-radius: var(--standard-border-radius);
-            font-size: 1rem;
-            font-weight: 600;
+            padding: 12px 22px;
+            font-size: 17px;
+            font-weight: 400;
+            border-radius: var(--radius-full);
+            border: none;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all var(--transition-base);
         }
+
+        .btn-accept {
+            background: var(--color-success);
+            color: white;
+        }
+
+        .btn-accept:hover {
+            background: #28c750;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-decline {
+            background: var(--color-error);
+            color: white;
+        }
+
         .btn-decline:hover {
-            background-color: #c82333;
-            border-color: #c82333;
+            background: #ff2d20;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
+
         .empty-state {
             text-align: center;
-            padding: 4rem 2rem;
-            color: var(--text-light);
+            padding: 80px 32px;
+            color: var(--color-text-secondary);
         }
+
         .empty-state p {
-            font-size: 1.1rem;
+            font-size: 21px;
         }
+
         .flash-message {
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: var(--standard-border-radius);
-            border: var(--border-width) solid;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            border-radius: var(--radius-md);
+            border: 1px solid;
+            font-size: 14px;
         }
+
         .flash-success {
-            background-color: #d4edda;
-            border-color: #c3e6cb;
-            color: #155724;
+            background: rgba(48, 209, 88, 0.1);
+            border-color: var(--color-success);
+            color: var(--color-success);
         }
+
         .flash-error {
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-            color: #721c24;
+            background: rgba(255, 59, 48, 0.1);
+            border-color: var(--color-error);
+            color: var(--color-error);
         }
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--accent);
-            text-decoration: none;
+
+        footer {
+            padding: 40px 24px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--color-surface);
+            position: relative;
+            z-index: 1;
         }
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-            background-color: var(--accent-bg);
-            border-bottom: var(--border-width) solid var(--border);
+
+        footer p {
+            color: var(--color-text-tertiary);
+            font-size: 14px;
         }
-        header nav {
-            display: flex;
-            gap: 1rem;
-        }
-        header nav a {
-            padding: 0.5rem 1rem;
-            text-decoration: none;
-            border: var(--border-width) solid transparent;
-        }
-        header nav a:hover {
-            border-color: var(--accent);
-        }
-        body {
-            display: block;
-        }
-        body > * {
-            grid-column: 1;
-        }
+
         @media (max-width: 768px) {
+            .page-header {
+                padding: 32px 24px;
+            }
+
+            .page-header h1 {
+                font-size: 36px;
+            }
+
             .request-actions {
                 flex-direction: column;
             }
@@ -161,15 +295,18 @@
     </style>
 </head>
 <body>
-    <header>
-        <a href="/" class="logo">StudyMatch</a>
-        <nav>
-            <a href="/dashboard">Dashboard</a>
-            <a href="/preferences">Preferences</a>
-            <a href="/friend-requests">Friend Requests</a>
-            <a href="/logout">Logout</a>
-        </nav>
-    </header>
+    <div class="header-container">
+        <header>
+            <a href="/" class="logo">StudyMatch</a>
+            <nav>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/preferences">Preferences</a>
+                <a href="/friend-requests">Friend Requests</a>
+                <a href="/chat">Chat</a>
+                <a href="/logout">Logout</a>
+            </nav>
+        </header>
+    </div>
 
     <main>
         <div class="friend-requests-container">
@@ -240,4 +377,3 @@
     </footer>
 </body>
 </html>
-

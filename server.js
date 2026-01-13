@@ -60,7 +60,53 @@ app.get("/dashboard", checkAuthentication2, async (req, res, next) => {
     try {
         const userId = req.user.id;
 
-        // Get all users with their preferences
+        // Get filter parameters from query string
+        const filters = {
+            courses: req.query.courses || '',
+            study_style: req.query.study_style || '',
+            study_format: req.query.study_format || '',
+            location: req.query.location || '',
+            availability: req.query.availability || ''
+        };
+
+        // Build WHERE clause for filters
+        let whereConditions = ['u.id != $1'];
+        let queryParams = [userId];
+        let paramIndex = 2;
+
+        if (filters.courses) {
+            whereConditions.push(`sp.courses ILIKE $${paramIndex}`);
+            queryParams.push(`%${filters.courses}%`);
+            paramIndex++;
+        }
+
+        if (filters.study_style) {
+            whereConditions.push(`sp.study_style = $${paramIndex}`);
+            queryParams.push(filters.study_style);
+            paramIndex++;
+        }
+
+        if (filters.study_format) {
+            whereConditions.push(`sp.study_format = $${paramIndex}`);
+            queryParams.push(filters.study_format);
+            paramIndex++;
+        }
+
+        if (filters.location) {
+            whereConditions.push(`sp.location = $${paramIndex}`);
+            queryParams.push(filters.location);
+            paramIndex++;
+        }
+
+        if (filters.availability) {
+            whereConditions.push(`sp.availability ILIKE $${paramIndex}`);
+            queryParams.push(`%${filters.availability}%`);
+            paramIndex++;
+        }
+
+        const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+
+        // Get all users with their preferences (with filters applied)
         const usersResult = await pool.query(
             `
             SELECT
@@ -74,9 +120,9 @@ app.get("/dashboard", checkAuthentication2, async (req, res, next) => {
             FROM users u
             JOIN study_preferences sp
                 ON u.id = sp.user_id
-            WHERE u.id != $1
+            ${whereClause}
             `,
-            [userId]
+            queryParams
         );
 
         // Get all friend requests sent by current user
@@ -86,29 +132,39 @@ app.get("/dashboard", checkAuthentication2, async (req, res, next) => {
             FROM friend_requests
             WHERE sender_id = $1 
             `,
-            [userId] //by checking where sender_id is 1 we can ensure that we only show the requests that the current user sent, not others
+            [userId]
         );
 
         // Create a map of recipient IDs to their request status
-        //create requestStatusMap to have key(id) value(status) pairs for checking status of users that u sent requests too
-        //looped through each row and retrieved the status for a given userid from friendRequestsResult
         const requestStatusMap = {};
         friendRequestsResult.rows.forEach(row => {
             requestStatusMap[row.recipient_id] = row.status
-        }
-        );
-
-
+        });
 
         // Add request status to each user
         const usersWithStatus = usersResult.rows.map(user => (
-            { ...user, friendRequestStatus: requestStatusMap[user.id] || null } //create a new array with the 
-            //user details copied over by using ...user, and we add the status of each friend request by adding it on
+            { ...user, friendRequestStatus: requestStatusMap[user.id] || null }
         ));
+
+        // Get unique values for filter dropdowns
+        const allPreferences = await pool.query(
+            `SELECT DISTINCT study_style, study_format, location FROM study_preferences WHERE user_id != $1`,
+            [userId]
+        );
+
+        const uniqueStudyStyles = [...new Set(allPreferences.rows.map(r => r.study_style).filter(Boolean))];
+        const uniqueStudyFormats = [...new Set(allPreferences.rows.map(r => r.study_format).filter(Boolean))];
+        const uniqueLocations = [...new Set(allPreferences.rows.map(r => r.location).filter(Boolean))];
 
         res.render("dashboard", {
             user: req.user,
-            users: usersWithStatus
+            users: usersWithStatus,
+            filters: filters,
+            filterOptions: {
+                studyStyles: uniqueStudyStyles,
+                studyFormats: uniqueStudyFormats,
+                locations: uniqueLocations
+            }
         });
 
     } catch (err) {
@@ -153,9 +209,9 @@ app.get("/chat", checkAuthentication2, async (req, res, next) => {
             ON users.id = friend_requests.sender_id
             WHERE friend_requests.status = 'accepted' 
             AND recipient_id = $1
-            `,[userId]
+            `, [userId]
         )
-        res.render("chat", {chatResults: chatResults.rows})
+        res.render("chat", { chatResults: chatResults.rows })
     } catch (err) {
         next(err)
     }

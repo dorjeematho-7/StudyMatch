@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat with <%= typeof otherUser !== 'undefined' ? otherUser.username : 'User' %> – StudyMatch</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        body {
+            background: var(--color-bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(0, 113, 227, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(118, 75, 162, 0.08) 0%, transparent 50%);
+            z-index: 0;
+            animation: gradient 20s ease infinite;
+            background-size: 200% 200%;
+        }
+
+        .header-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        header {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 21px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+            text-decoration: none;
+            letter-spacing: -0.022em;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        header nav a {
+            padding: 8px 16px;
+            font-size: 17px;
+            color: var(--color-text-secondary);
+            border-radius: var(--radius-full);
+            transition: all var(--transition-fast);
+        }
+
+        header nav a:hover {
+            color: var(--color-text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        main {
+            flex: 1;
+            padding: 100px 24px 80px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-container {
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+            height: calc(100vh - 200px);
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .chat-header {
+            background: var(--gradient-accent);
+            border-radius: var(--radius-xl);
+            padding: 24px 32px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chat-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .chat-header h1 {
+            font-size: 28px;
+            color: white;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chat-header p {
+            font-size: 17px;
+            color: rgba(255, 255, 255, 0.9);
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-button {
+            padding: 8px 16px;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--radius-full);
+            color: white;
+            font-size: 17px;
+            transition: all var(--transition-base);
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            background: var(--color-surface);
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .message.received {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .message-bubble {
+            padding: 12px 18px;
+            border-radius: var(--radius-lg);
+            word-wrap: break-word;
+            word-break: break-word;
+            font-size: 17px;
+            line-height: 1.47059;
+        }
+
+        .message.sent .message-bubble {
+            background: var(--gradient-accent);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.received .message-bubble {
+            background: var(--color-bg-secondary);
+            color: var(--color-text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-info {
+            font-size: 13px;
+            color: var(--color-text-tertiary);
+            margin-top: 4px;
+            padding: 0 4px;
+        }
+
+        .empty-messages {
+            text-align: center;
+            color: var(--color-text-secondary);
+            padding: 60px 32px;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-messages p {
+            font-size: 21px;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
+            padding: 12px 16px;
+            background: var(--color-surface);
+            box-shadow: var(--shadow-md);
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            font-size: 17px;
+            font-family: inherit;
+            resize: none;
+            background: var(--color-bg-secondary);
+            color: var(--color-text-primary);
+            transition: all var(--transition-base);
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            background: var(--color-bg-tertiary);
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+        }
+
+        .send-button {
+            padding: 12px 24px;
+            background: var(--color-accent);
+            color: white;
+            border: none;
+            border-radius: var(--radius-full);
+            font-size: 17px;
+            font-weight: 400;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .send-button:hover:not(:disabled) {
+            background: var(--color-accent-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        footer {
+            padding: 40px 24px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--color-surface);
+            position: relative;
+            z-index: 1;
+        }
+
+        footer p {
+            color: var(--color-text-tertiary);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                height: calc(100vh - 150px);
+            }
+
+            .message {
+                max-width: 85%;
+            }
+
+            .chat-header {
+                padding: 20px 24px;
+            }
+
+            .chat-header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <header>
+            <a href="/" class="logo">StudyMatch</a>
+            <nav>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/preferences">Preferences</a>
+                <a href="/friend-requests">Friend Requests</a>
+                <a href="/chat">Chat</a>
+                <a href="/logout">Logout</a>
+            </nav>
+        </header>
+    </div>
+
+    <main>
+        <div class="chat-container">
+            <div class="chat-header">
+                <div>
+                    <h1>Chat with <%= typeof otherUser !== 'undefined' ? otherUser.username : 'User' %></h1>
+                    <p>Study Partner Chat</p>
+                </div>
+                <a href="/chat" class="back-button">← Back to Chats</a>
+            </div>
+
+            <div class="messages-container" id="messagesContainer">
+                <% if (typeof messages === 'undefined' || messages.length === 0) { %>
+                    <div class="empty-messages">
+                        <p>No messages yet. Start the conversation!</p>
+                    </div>
+                <% } else { %>
+                    <% messages.forEach(message => { %>
+                        <% const isSent = message.sender_id === user.id; %>
+                        <div class="message <%= isSent ? 'sent' : 'received' %>">
+                            <div class="message-bubble">
+                                <%= message.content || message.message %>
+                            </div>
+                            <div class="message-info">
+                                <% if (typeof message.created_at !== 'undefined') { %>
+                                    <%= new Date(message.created_at).toLocaleString() %>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } %>
+            </div>
+
+            <form action="/send-message" method="POST" id="chatForm" class="chat-input-container">
+                <input type="hidden" name="recipient_id" value="<%= typeof otherUser !== 'undefined' ? otherUser.id : '' %>">
+                <textarea 
+                    name="message" 
+                    id="messageInput" 
+                    class="chat-input" 
+                    placeholder="Type your message..." 
+                    rows="1"
+                    required
+                    maxlength="1000"
+                ></textarea>
+                <button type="submit" class="send-button" id="sendButton">Send</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 StudyMatch. Created by a UofT student.</p>
+    </footer>
+
+    <script>
+        const messageInput = document.getElementById('messageInput');
+        const chatForm = document.getElementById('chatForm');
+        const sendButton = document.getElementById('sendButton');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const recipientId = <%= typeof otherUser !== 'undefined' ? otherUser.id : 'null' %>;
+
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message || !recipientId) {
+                return;
+            }
+
+            messageInput.disabled = true;
+            sendButton.disabled = true;
+            sendButton.textContent = 'Sending...';
+
+            const formData = new FormData();
+            formData.append('recipient_id', recipientId);
+            formData.append('message', message);
+
+            fetch('/send-message', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    messageInput.value = '';
+                    messageInput.style.height = 'auto';
+                    window.location.reload();
+                } else {
+                    alert('Failed to send message. Please try again.');
+                    messageInput.disabled = false;
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Send';
+                }
+            })
+            .catch(err => {
+                console.error('Error sending message:', err);
+                alert('Error sending message. Please try again.');
+                messageInput.disabled = false;
+                sendButton.disabled = false;
+                sendButton.textContent = 'Send';
+            });
+        }
+
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            sendMessage();
+        });
+
+        let lastMessageCount = <%= typeof messages !== 'undefined' ? messages.length : 0 %>;
+        
+        if (recipientId) {
+            setInterval(function() {
+                fetch(`/chat/${recipientId}/check-new-messages?count=${lastMessageCount}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.hasNewMessages) {
+                            window.location.reload();
+                        }
+                    })
+                    .catch(err => {
+                        console.log('Polling error (non-critical):', err);
+                    });
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
