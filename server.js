@@ -6,26 +6,38 @@ const session = require("express-session")
 const flash = require("express-flash")
 const passport = require("passport")
 
+const http = require("http");
+const { Server } = require("socket.io");
+
+const server = http.createServer(app);
+const io = new Server(server);
+
+server.listen(5000);
+
 
 const initializePassport = require("./passportConfig")
 initializePassport(passport) //intialize function I created in passportConfig
 
 app.set("view engine", "ejs")
 app.use(express.static("public"))
-
 app.use(express.urlencoded({ extended: false }))
-app.use(session({
+
+const sessionMiddleware = session({ //storing the returned function from session into sessionMiddleware variable
     secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
+});
 
-    resave: false, //we dont want to resave variables if nothing has changed
+app.use(sessionMiddleware);
 
-    saveUninitialized: false // we dont want to resave if no values are placed 
-}))
+io.use((socket, next) => {
+    sessionMiddleware(socket.request, {}, next); //use sesssionMiddleware variable to feed to socket
+});
+
+
 
 app.use(passport.initialize())
 app.use(passport.session())
-
-
 app.use(flash())
 
 app.get("/login", checkAuthentication, (req, res) => {
@@ -195,25 +207,76 @@ app.get("/friend-requests", checkAuthentication2, async (req, res, next) => {
 });
 
 app.get("/chat", checkAuthentication2, async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    const chatResults = await pool.query( //USE UNION HERE TO ENSURE THAT ALSO THE CHAT WILL POP UP FOR THE SENDER
+      `
+      SELECT u.id, u.username
+      FROM friend_requests fr
+      JOIN users u ON u.id = fr.sender_id
+      WHERE fr.status = 'accepted'
+      AND fr.recipient_id = $1
+
+      UNION 
+
+      SELECT u.id, u.username
+      FROM friend_requests fr
+      JOIN users u ON u.id = fr.recipient_id
+      WHERE fr.status = 'accepted'
+      AND fr.sender_id = $1
+      `,
+      [userId]
+    );
+
+    res.render("chat", { chatResults: chatResults.rows });
+  } catch (err) {
+    next(err);
+  }
+});
+
+
+app.get("/chat/:userId", checkAuthentication2, async (req, res, next) => {
     try {
+        const currentUserId = req.user.id;
+        const otherUserId = parseInt(req.params.userId);
 
-        const userId = req.user.id;
+        // Verify that the users are friends (accepted friend request in either direction)
+        const friendshipCheck = await pool.query(
+            `SELECT id FROM friend_requests 
+             WHERE status = 'accepted' 
+             AND (
+                 (sender_id = $1 AND recipient_id = $2) 
+                 OR (sender_id = $2 AND recipient_id = $1)
+             )`,
+            [currentUserId, otherUserId]
+        );
 
-        const chatResults = await pool.query(
-            //return an array that has the other users id and other users username to the frontend
-            `SELECT
-            friend_requests.sender_id,
-            users.username
-            FROM friend_requests
-            JOIN users
-            ON users.id = friend_requests.sender_id
-            WHERE friend_requests.status = 'accepted' 
-            AND recipient_id = $1
-            `, [userId]
-        )
-        res.render("chat", { chatResults: chatResults.rows })
+        if (friendshipCheck.rows.length === 0) {
+            req.flash("error", "You can only chat with your friends");
+            return res.redirect("/chat");
+        }
+
+        // Get the other user's information
+        const otherUserResult = await pool.query(
+            `SELECT id, username FROM users WHERE id = $1`,
+            [otherUserId]
+        );
+
+        if (otherUserResult.rows.length === 0) {
+            req.flash("error", "User not found");
+            return res.redirect("/chat");
+        }
+
+        const otherUser = otherUserResult.rows[0];
+
+        res.render("chat-window", {
+            user: req.user,
+            otherUser: otherUser
+        });
+
     } catch (err) {
-        next(err)
+        next(err);
     }
 })
 
@@ -462,4 +525,3 @@ function checkPreferences(req, res, next) {
 }
 
 
-app.listen(5000) //port set to 5000

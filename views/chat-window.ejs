@@ -5,28 +5,14 @@
     <title>Chat with <%= typeof otherUser !== 'undefined' ? otherUser.username : 'User' %> – StudyMatch</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/styles.css">
+    <script src="/socket.io/socket.io.js"></script>
     <style>
         body {
-            background: var(--color-bg);
+            background: #f5f5f7;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             position: relative;
-            overflow: hidden;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 20% 30%, rgba(0, 113, 227, 0.08) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 70%, rgba(118, 75, 162, 0.08) 0%, transparent 50%);
-            z-index: 0;
-            animation: gradient 20s ease infinite;
-            background-size: 200% 200%;
         }
 
         .header-container {
@@ -35,10 +21,10 @@
             left: 0;
             right: 0;
             z-index: 1000;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: saturate(180%) blur(20px);
             -webkit-backdrop-filter: saturate(180%) blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
         }
 
         header {
@@ -53,13 +39,9 @@
         .logo {
             font-size: 21px;
             font-weight: 600;
-            color: var(--color-text-primary);
+            color: #1d1d1f;
             text-decoration: none;
             letter-spacing: -0.022em;
-            background: var(--gradient-accent);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         header nav {
@@ -70,14 +52,13 @@
         header nav a {
             padding: 8px 16px;
             font-size: 17px;
-            color: var(--color-text-secondary);
-            border-radius: var(--radius-full);
-            transition: all var(--transition-fast);
+            color: #1d1d1f;
+            border-radius: 980px;
+            transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         header nav a:hover {
-            color: var(--color-text-primary);
-            background: rgba(255, 255, 255, 0.05);
+            background: #f5f5f7;
         }
 
         main {
@@ -100,14 +81,14 @@
         }
 
         .chat-header {
-            background: var(--gradient-accent);
-            border-radius: var(--radius-xl);
+            background: linear-gradient(135deg, #0071e3 0%, #0051d5 100%);
+            border-radius: 24px;
             padding: 24px 32px;
             margin-bottom: 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 8px 32px rgba(0, 113, 227, 0.3);
             position: relative;
             overflow: hidden;
         }
@@ -119,7 +100,7 @@
             right: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
             animation: pulse 4s ease-in-out infinite;
         }
 
@@ -128,23 +109,26 @@
             color: white;
             position: relative;
             z-index: 1;
+            font-weight: 700;
+            letter-spacing: -0.003em;
         }
 
         .chat-header p {
             font-size: 17px;
-            color: rgba(255, 255, 255, 0.9);
+            color: rgba(255, 255, 255, 0.95);
             position: relative;
             z-index: 1;
+            font-weight: 400;
         }
 
         .back-button {
             padding: 8px 16px;
             text-decoration: none;
             border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: var(--radius-full);
+            border-radius: 980px;
             color: white;
             font-size: 17px;
-            transition: all var(--transition-base);
+            transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             z-index: 1;
         }
@@ -157,15 +141,15 @@
         .messages-container {
             flex: 1;
             overflow-y: auto;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius-xl);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 24px;
             padding: 24px;
-            background: var(--color-surface);
+            background: #ffffff;
             margin-bottom: 16px;
             display: flex;
             flex-direction: column;
             gap: 16px;
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
         .message {
@@ -187,7 +171,7 @@
 
         .message-bubble {
             padding: 12px 18px;
-            border-radius: var(--radius-lg);
+            border-radius: 18px;
             word-wrap: break-word;
             word-break: break-word;
             font-size: 17px;
@@ -195,28 +179,28 @@
         }
 
         .message.sent .message-bubble {
-            background: var(--gradient-accent);
+            background: linear-gradient(135deg, #0071e3 0%, #0051d5 100%);
             color: white;
             border-bottom-right-radius: 4px;
         }
 
         .message.received .message-bubble {
-            background: var(--color-bg-secondary);
-            color: var(--color-text-primary);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #f5f5f7;
+            color: #1d1d1f;
+            border: 1px solid rgba(0, 0, 0, 0.05);
             border-bottom-left-radius: 4px;
         }
 
         .message-info {
             font-size: 13px;
-            color: var(--color-text-tertiary);
+            color: #86868b;
             margin-top: 4px;
             padding: 0 4px;
         }
 
         .empty-messages {
             text-align: center;
-            color: var(--color-text-secondary);
+            color: #6e6e73;
             padding: 60px 32px;
             flex: 1;
             display: flex;
@@ -226,54 +210,54 @@
 
         .empty-messages p {
             font-size: 21px;
+            font-weight: 400;
         }
 
         .chat-input-container {
             display: flex;
             gap: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius-xl);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 24px;
             padding: 12px 16px;
-            background: var(--color-surface);
-            box-shadow: var(--shadow-md);
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
         .chat-input {
             flex: 1;
             padding: 12px 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius-md);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
             font-size: 17px;
             font-family: inherit;
             resize: none;
-            background: var(--color-bg-secondary);
-            color: var(--color-text-primary);
-            transition: all var(--transition-base);
+            background: #ffffff;
+            color: #1d1d1f;
+            transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .chat-input:focus {
             outline: none;
-            border-color: var(--color-accent);
-            background: var(--color-bg-tertiary);
+            border-color: #0071e3;
             box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
         }
 
         .send-button {
             padding: 12px 24px;
-            background: var(--color-accent);
+            background: #0071e3;
             color: white;
             border: none;
-            border-radius: var(--radius-full);
+            border-radius: 980px;
             font-size: 17px;
             font-weight: 400;
             cursor: pointer;
-            transition: all var(--transition-base);
+            transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .send-button:hover:not(:disabled) {
-            background: var(--color-accent-hover);
+            background: #0077ed;
             transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 4px 16px rgba(0, 113, 227, 0.3);
         }
 
         .send-button:disabled {
@@ -284,15 +268,35 @@
         footer {
             padding: 40px 24px;
             text-align: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            background: var(--color-surface);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            background: #ffffff;
             position: relative;
             z-index: 1;
         }
 
         footer p {
-            color: var(--color-text-tertiary);
+            color: #86868b;
             font-size: 14px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
         }
 
         @media (max-width: 768px) {
@@ -339,40 +343,21 @@
             </div>
 
             <div class="messages-container" id="messagesContainer">
-                <% if (typeof messages === 'undefined' || messages.length === 0) { %>
-                    <div class="empty-messages">
-                        <p>No messages yet. Start the conversation!</p>
-                    </div>
-                <% } else { %>
-                    <% messages.forEach(message => { %>
-                        <% const isSent = message.sender_id === user.id; %>
-                        <div class="message <%= isSent ? 'sent' : 'received' %>">
-                            <div class="message-bubble">
-                                <%= message.content || message.message %>
-                            </div>
-                            <div class="message-info">
-                                <% if (typeof message.created_at !== 'undefined') { %>
-                                    <%= new Date(message.created_at).toLocaleString() %>
-                                <% } %>
-                            </div>
-                        </div>
-                    <% }) %>
-                <% } %>
+                <div class="empty-messages" id="emptyState">
+                    <p>No messages yet. Start the conversation!</p>
+                </div>
             </div>
 
-            <form action="/send-message" method="POST" id="chatForm" class="chat-input-container">
-                <input type="hidden" name="recipient_id" value="<%= typeof otherUser !== 'undefined' ? otherUser.id : '' %>">
+            <div class="chat-input-container">
                 <textarea 
-                    name="message" 
                     id="messageInput" 
                     class="chat-input" 
                     placeholder="Type your message..." 
                     rows="1"
-                    required
                     maxlength="1000"
                 ></textarea>
-                <button type="submit" class="send-button" id="sendButton">Send</button>
-            </form>
+                <button type="button" class="send-button" id="sendButton">Send</button>
+            </div>
         </div>
     </main>
 
@@ -381,19 +366,43 @@
     </footer>
 
     <script>
+        // DOM elements
         const messageInput = document.getElementById('messageInput');
-        const chatForm = document.getElementById('chatForm');
         const sendButton = document.getElementById('sendButton');
         const messagesContainer = document.getElementById('messagesContainer');
-        const recipientId = <%= typeof otherUser !== 'undefined' ? otherUser.id : 'null' %>;
+        const emptyState = document.getElementById('emptyState');
+        const currentUserId = <%= typeof user !== 'undefined' ? user.id : 'null' %>;
 
+        // Connect to Socket.IO
+        const socket = io();
+
+        // Handle connection
+        socket.on('connect', () => {
+            console.log('Connected to server via Socket.IO');
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+        });
+
+        // Listen for incoming messages
+        socket.on('chat-message', (data) => {
+            console.log('Message received:', data);
+            addMessageToUI(data.message, data.userId === currentUserId);
+            
+            // Hide empty state if it exists
+            if (emptyState) {
+                emptyState.style.display = 'none';
+            }
+        });
+
+        // Auto-resize textarea
         messageInput.addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = (this.scrollHeight) + 'px';
         });
 
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
+        // Handle Enter key (Shift+Enter for new line)
         messageInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -401,69 +410,66 @@
             }
         });
 
+        // Send message function
         function sendMessage() {
             const message = messageInput.value.trim();
-            if (!message || !recipientId) {
+            
+            if (!message) {
                 return;
             }
 
+            // Disable input while sending
             messageInput.disabled = true;
             sendButton.disabled = true;
             sendButton.textContent = 'Sending...';
 
-            const formData = new FormData();
-            formData.append('recipient_id', recipientId);
-            formData.append('message', message);
-
-            fetch('/send-message', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json'
-                },
-                body: formData
-            })
-            .then(response => {
-                if (response.ok) {
-                    messageInput.value = '';
-                    messageInput.style.height = 'auto';
-                    window.location.reload();
-                } else {
-                    alert('Failed to send message. Please try again.');
-                    messageInput.disabled = false;
-                    sendButton.disabled = false;
-                    sendButton.textContent = 'Send';
-                }
-            })
-            .catch(err => {
-                console.error('Error sending message:', err);
-                alert('Error sending message. Please try again.');
-                messageInput.disabled = false;
-                sendButton.disabled = false;
-                sendButton.textContent = 'Send';
+            // Emit message via Socket.IO
+            socket.emit('chat-message', {
+                message: message
             });
+
+            // Clear input and reset
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            messageInput.disabled = false;
+            sendButton.disabled = false;
+            sendButton.textContent = 'Send';
         }
 
-        chatForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            sendMessage();
-        });
+        // Add message to UI
+        function addMessageToUI(messageText, isSent) {
+            // Hide empty state
+            if (emptyState) {
+                emptyState.style.display = 'none';
+            }
 
-        let lastMessageCount = <%= typeof messages !== 'undefined' ? messages.length : 0 %>;
-        
-        if (recipientId) {
-            setInterval(function() {
-                fetch(`/chat/${recipientId}/check-new-messages?count=${lastMessageCount}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.hasNewMessages) {
-                            window.location.reload();
-                        }
-                    })
-                    .catch(err => {
-                        console.log('Polling error (non-critical):', err);
-                    });
-            }, 5000);
+            // Create message element
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'message-bubble';
+            bubbleDiv.textContent = messageText;
+
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'message-info';
+            infoDiv.textContent = new Date().toLocaleTimeString();
+
+            messageDiv.appendChild(bubbleDiv);
+            messageDiv.appendChild(infoDiv);
+
+            // Add to container
+            messagesContainer.appendChild(messageDiv);
+
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
+
+        // Send button click handler
+        sendButton.addEventListener('click', sendMessage);
+
+        // Scroll to bottom on load
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     </script>
 </body>
 </html>
