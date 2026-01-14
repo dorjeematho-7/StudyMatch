@@ -265,7 +265,7 @@
             <% } else { %>
                 <section class="chats-grid">
                     <% chatResults.forEach(chatUser => { %>
-                        <a href="/chat/<%= chatUser.sender_id %>" class="chat-item">
+                        <a href="/chat/<%= chatUser.id %>" class="chat-item">
                             <div class="chat-item-info">
                                 <h3><%= chatUser.username %></h3>
                                 <p>Click to start chatting</p>

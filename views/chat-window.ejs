@@ -371,7 +371,7 @@
         const sendButton = document.getElementById('sendButton');
         const messagesContainer = document.getElementById('messagesContainer');
         const emptyState = document.getElementById('emptyState');
-        const currentUserId = <%= typeof user !== 'undefined' ? user.id : 'null' %>;
+        const currentUserId = <%= user ? user.id : null %>;
 
         // Connect to Socket.IO
         const socket = io();

@@ -6,38 +6,26 @@ const session = require("express-session")
 const flash = require("express-flash")
 const passport = require("passport")
 
-const http = require("http");
-const { Server } = require("socket.io");
-
-const server = http.createServer(app);
-const io = new Server(server);
-
-server.listen(5000);
-
 
 const initializePassport = require("./passportConfig")
 initializePassport(passport) //intialize function I created in passportConfig
 
 app.set("view engine", "ejs")
 app.use(express.static("public"))
+
 app.use(express.urlencoded({ extended: false }))
-
-const sessionMiddleware = session({ //storing the returned function from session into sessionMiddleware variable
+app.use(session({
     secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false
-});
 
-app.use(sessionMiddleware);
+    resave: false, //we dont want to resave variables if nothing has changed
 
-io.use((socket, next) => {
-    sessionMiddleware(socket.request, {}, next); //use sesssionMiddleware variable to feed to socket
-});
-
-
+    saveUninitialized: false // we dont want to resave if no values are placed 
+}))
 
 app.use(passport.initialize())
 app.use(passport.session())
+
+
 app.use(flash())
 
 app.get("/login", checkAuthentication, (req, res) => {
@@ -72,53 +60,7 @@ app.get("/dashboard", checkAuthentication2, async (req, res, next) => {
     try {
         const userId = req.user.id;
 
-        // Get filter parameters from query string
-        const filters = {
-            courses: req.query.courses || '',
-            study_style: req.query.study_style || '',
-            study_format: req.query.study_format || '',
-            location: req.query.location || '',
-            availability: req.query.availability || ''
-        };
-
-        // Build WHERE clause for filters
-        let whereConditions = ['u.id != $1'];
-        let queryParams = [userId];
-        let paramIndex = 2;
-
-        if (filters.courses) {
-            whereConditions.push(`sp.courses ILIKE $${paramIndex}`);
-            queryParams.push(`%${filters.courses}%`);
-            paramIndex++;
-        }
-
-        if (filters.study_style) {
-            whereConditions.push(`sp.study_style = $${paramIndex}`);
-            queryParams.push(filters.study_style);
-            paramIndex++;
-        }
-
-        if (filters.study_format) {
-            whereConditions.push(`sp.study_format = $${paramIndex}`);
-            queryParams.push(filters.study_format);
-            paramIndex++;
-        }
-
-        if (filters.location) {
-            whereConditions.push(`sp.location = $${paramIndex}`);
-            queryParams.push(filters.location);
-            paramIndex++;
-        }
-
-        if (filters.availability) {
-            whereConditions.push(`sp.availability ILIKE $${paramIndex}`);
-            queryParams.push(`%${filters.availability}%`);
-            paramIndex++;
-        }
-
-        const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
-
-        // Get all users with their preferences (with filters applied)
+        // Get all users with their preferences
         const usersResult = await pool.query(
             `
             SELECT
@@ -132,9 +74,9 @@ app.get("/dashboard", checkAuthentication2, async (req, res, next) => {
             FROM users u
             JOIN study_preferences sp
                 ON u.id = sp.user_id
-            ${whereClause}
+            WHERE u.id != $1
             `,
-            queryParams
+            [userId]
         );
 
         // Get all friend requests sent by current user
@@ -144,39 +86,29 @@ app.get("/dashboard", checkAuthentication2, async (req, res, next) => {
             FROM friend_requests
             WHERE sender_id = $1 
             `,
-            [userId]
+            [userId] //by checking where sender_id is 1 we can ensure that we only show the requests that the current user sent, not others
         );
 
         // Create a map of recipient IDs to their request status
+        //create requestStatusMap to have key(id) value(status) pairs for checking status of users that u sent requests too
+        //looped through each row and retrieved the status for a given userid from friendRequestsResult
         const requestStatusMap = {};
         friendRequestsResult.rows.forEach(row => {
             requestStatusMap[row.recipient_id] = row.status
-        });
+        }
+        );
+
+
 
         // Add request status to each user
         const usersWithStatus = usersResult.rows.map(user => (
-            { ...user, friendRequestStatus: requestStatusMap[user.id] || null }
+            { ...user, friendRequestStatus: requestStatusMap[user.id] || null } //create a new array with the 
+            //user details copied over by using ...user, and we add the status of each friend request by adding it on
         ));
-
-        // Get unique values for filter dropdowns
-        const allPreferences = await pool.query(
-            `SELECT DISTINCT study_style, study_format, location FROM study_preferences WHERE user_id != $1`,
-            [userId]
-        );
-
-        const uniqueStudyStyles = [...new Set(allPreferences.rows.map(r => r.study_style).filter(Boolean))];
-        const uniqueStudyFormats = [...new Set(allPreferences.rows.map(r => r.study_format).filter(Boolean))];
-        const uniqueLocations = [...new Set(allPreferences.rows.map(r => r.location).filter(Boolean))];
 
         res.render("dashboard", {
             user: req.user,
-            users: usersWithStatus,
-            filters: filters,
-            filterOptions: {
-                studyStyles: uniqueStudyStyles,
-                studyFormats: uniqueStudyFormats,
-                locations: uniqueLocations
-            }
+            users: usersWithStatus
         });
 
     } catch (err) {
@@ -207,76 +139,31 @@ app.get("/friend-requests", checkAuthentication2, async (req, res, next) => {
 });
 
 app.get("/chat", checkAuthentication2, async (req, res, next) => {
-  try {
-    const userId = req.user.id;
+    try {
 
-    const chatResults = await pool.query( //USE UNION HERE TO ENSURE THAT ALSO THE CHAT WILL POP UP FOR THE SENDER
-      `
+        const userId = req.user.id;
+
+        const chatResults = await pool.query(
+            //return an array that has the other users id and other users username to the frontend
+            `
       SELECT u.id, u.username
       FROM friend_requests fr
       JOIN users u ON u.id = fr.sender_id
       WHERE fr.status = 'accepted'
-      AND fr.recipient_id = $1
+        AND fr.recipient_id = $1
 
-      UNION 
+      UNION
 
       SELECT u.id, u.username
       FROM friend_requests fr
       JOIN users u ON u.id = fr.recipient_id
       WHERE fr.status = 'accepted'
-      AND fr.sender_id = $1
-      `,
-      [userId]
-    );
-
-    res.render("chat", { chatResults: chatResults.rows });
-  } catch (err) {
-    next(err);
-  }
-});
-
-
-app.get("/chat/:userId", checkAuthentication2, async (req, res, next) => {
-    try {
-        const currentUserId = req.user.id;
-        const otherUserId = parseInt(req.params.userId);
-
-        // Verify that the users are friends (accepted friend request in either direction)
-        const friendshipCheck = await pool.query(
-            `SELECT id FROM friend_requests 
-             WHERE status = 'accepted' 
-             AND (
-                 (sender_id = $1 AND recipient_id = $2) 
-                 OR (sender_id = $2 AND recipient_id = $1)
-             )`,
-            [currentUserId, otherUserId]
-        );
-
-        if (friendshipCheck.rows.length === 0) {
-            req.flash("error", "You can only chat with your friends");
-            return res.redirect("/chat");
-        }
-
-        // Get the other user's information
-        const otherUserResult = await pool.query(
-            `SELECT id, username FROM users WHERE id = $1`,
-            [otherUserId]
-        );
-
-        if (otherUserResult.rows.length === 0) {
-            req.flash("error", "User not found");
-            return res.redirect("/chat");
-        }
-
-        const otherUser = otherUserResult.rows[0];
-
-        res.render("chat-window", {
-            user: req.user,
-            otherUser: otherUser
-        });
-
+        AND fr.sender_id = $1
+      `, [userId]
+        )
+        res.render("chat", { chatResults: chatResults.rows })
     } catch (err) {
-        next(err);
+        next(err)
     }
 })
 
@@ -525,3 +412,4 @@ function checkPreferences(req, res, next) {
 }
 
 
+app.listen(5000) //port set to 5000
