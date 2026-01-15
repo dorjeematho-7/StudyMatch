@@ -7,6 +7,18 @@ const flash = require("express-flash")
 const passport = require("passport")
 
 
+//initialization of server to implement WebSockets
+const { createServer } = require("http") // pull out CreateServer function from http module, enabling a explicit HTTP server for socket to get access too
+const { Server } = require("socket.io") //get the websocket server class to intialize a websocket server object
+const httpServer = createServer(app)
+const io = new Server(httpServer)
+
+io.on("connection", (socket) => { });
+
+httpServer.listen(5000);
+
+
+
 const initializePassport = require("./passportConfig")
 initializePassport(passport) //intialize function I created in passportConfig
 
@@ -167,6 +179,49 @@ app.get("/chat", checkAuthentication2, async (req, res, next) => {
     }
 })
 
+app.get("/chat/:userId", checkAuthentication2, async (req, res, next) => {
+    try {
+        const currentUserId = req.user.id;
+        const otherUserId = parseInt(req.params.userId);
+
+        // Verify that the users are friends (accepted friend request in either direction)
+        const friendshipCheck = await pool.query(
+            `SELECT id FROM friend_requests 
+             WHERE status = 'accepted' 
+             AND (
+                 (sender_id = $1 AND recipient_id = $2) 
+                 OR (sender_id = $2 AND recipient_id = $1)
+             )`,
+            [currentUserId, otherUserId]
+        );
+
+        if (friendshipCheck.rows.length === 0) {
+            req.flash("error", "You can only chat with your friends");
+            return res.redirect("/chat");
+        }
+
+        // Get the other user's information
+        const otherUserResult = await pool.query(
+            `SELECT id, username FROM users WHERE id = $1`,
+            [otherUserId]
+        );
+
+        if (otherUserResult.rows.length === 0) {
+            req.flash("error", "User not found");
+            return res.redirect("/chat");
+        }
+
+        const otherUser = otherUserResult.rows[0];
+
+        res.render("chat-window", {
+            user: req.user,
+            otherUser: otherUser
+        });
+
+    } catch (err) {
+        next(err);
+    }
+})
 
 app.post('/register', async (req, res) => {
     let { email, password, username } = req.body;
@@ -412,4 +467,4 @@ function checkPreferences(req, res, next) {
 }
 
 
-app.listen(5000) //port set to 5000
+

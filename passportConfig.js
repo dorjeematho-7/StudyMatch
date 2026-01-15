@@ -1,5 +1,4 @@
 const LocalStrategy = require("passport-local").Strategy
-const { authenticate } = require("passport")
 const { pool } = require("./dbConfig")
 const bcrypt = require("bcrypt")
 
@@ -10,9 +9,6 @@ const authenticateUser = (email, password, done) => {
             if (err) {
                 throw err
             }
-
-            console.log(results.rows)
-
 
             if (results.rows.length > 0) {
                 const user = results.rows[0]; //get the user related to the matching email
@@ -39,16 +35,11 @@ const authenticateUser = (email, password, done) => {
 
 }
 
-
-
 function initialize(passport) { //initialzing functions for passport
     passport.use(new LocalStrategy({
         usernameField: "email",
         passwordField: "password"
-    },
-        authenticateUser
-
-
+    }, authenticateUser
     ))
 
     passport.serializeUser((user, done) => { //stores user id in session cookie
@@ -68,7 +59,9 @@ function initialize(passport) { //initialzing functions for passport
                     // User no longer exists in database, invalidate session
                     return done(null, null)
                 }
+
             }
+
         )
     })
 }

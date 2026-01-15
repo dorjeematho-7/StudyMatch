@@ -8,7 +8,7 @@
     <script src="/socket.io/socket.io.js"></script>
     <style>
         body {
-            background: #f5f5f7;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -21,10 +21,11 @@
             left: 0;
             right: 0;
             z-index: 1000;
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: saturate(180%) blur(20px);
             -webkit-backdrop-filter: saturate(180%) blur(20px);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
         header {
@@ -42,6 +43,10 @@
             color: #1d1d1f;
             text-decoration: none;
             letter-spacing: -0.022em;
+            background: linear-gradient(135deg, #0071e3 0%, #0051d5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         header nav {
@@ -55,10 +60,12 @@
             color: #1d1d1f;
             border-radius: 980px;
             transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
         }
 
         header nav a:hover {
             background: #f5f5f7;
+            color: #0071e3;
         }
 
         main {
@@ -82,42 +89,27 @@
 
         .chat-header {
             background: linear-gradient(135deg, #0071e3 0%, #0051d5 100%);
-            border-radius: 24px;
+            border-radius: 20px;
             padding: 24px 32px;
             margin-bottom: 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 8px 32px rgba(0, 113, 227, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .chat-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
-            animation: pulse 4s ease-in-out infinite;
+            box-shadow: 0 8px 32px rgba(0, 113, 227, 0.25);
         }
 
         .chat-header h1 {
             font-size: 28px;
             color: white;
-            position: relative;
-            z-index: 1;
             font-weight: 700;
             letter-spacing: -0.003em;
+            margin: 0;
         }
 
         .chat-header p {
-            font-size: 17px;
-            color: rgba(255, 255, 255, 0.95);
-            position: relative;
-            z-index: 1;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.9);
+            margin: 4px 0 0 0;
             font-weight: 400;
         }
 
@@ -127,10 +119,8 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 980px;
             color: white;
-            font-size: 17px;
+            font-size: 15px;
             transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            z-index: 1;
         }
 
         .back-button:hover {
@@ -141,8 +131,8 @@
         .messages-container {
             flex: 1;
             overflow-y: auto;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            border-radius: 24px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 20px;
             padding: 24px;
             background: #ffffff;
             margin-bottom: 16px;
@@ -175,7 +165,7 @@
             word-wrap: break-word;
             word-break: break-word;
             font-size: 17px;
-            line-height: 1.47059;
+            line-height: 1.5;
         }
 
         .message.sent .message-bubble {
@@ -216,8 +206,8 @@
         .chat-input-container {
             display: flex;
             gap: 12px;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            border-radius: 24px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 20px;
             padding: 12px 16px;
             background: #ffffff;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
@@ -268,7 +258,7 @@
         footer {
             padding: 40px 24px;
             text-align: center;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
             background: #ffffff;
             position: relative;
             z-index: 1;
@@ -287,15 +277,6 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
-            }
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.7;
             }
         }
 
@@ -372,6 +353,7 @@
         const messagesContainer = document.getElementById('messagesContainer');
         const emptyState = document.getElementById('emptyState');
         const currentUserId = <%= user ? user.id : null %>;
+        const otherUserId = <%= typeof otherUser !== 'undefined' ? otherUser.id : null %>;
 
         // Connect to Socket.IO
         const socket = io();
@@ -388,11 +370,14 @@
         // Listen for incoming messages
         socket.on('chat-message', (data) => {
             console.log('Message received:', data);
-            addMessageToUI(data.message, data.userId === currentUserId);
-            
-            // Hide empty state if it exists
-            if (emptyState) {
-                emptyState.style.display = 'none';
+            // Only show messages in this chat if they're from/for the current conversation
+            if (data.userId === currentUserId || data.userId === otherUserId) {
+                addMessageToUI(data.message, data.userId === currentUserId);
+                
+                // Hide empty state if it exists
+                if (emptyState) {
+                    emptyState.style.display = 'none';
+                }
             }
         });
 
@@ -425,7 +410,8 @@
 
             // Emit message via Socket.IO
             socket.emit('chat-message', {
-                message: message
+                message: message,
+                recipientId: otherUserId
             });
 
             // Clear input and reset
