@@ -13,7 +13,45 @@ const { Server } = require("socket.io") //get the websocket server class to inti
 const httpServer = createServer(app)
 const io = new Server(httpServer)
 
-io.on("connection", (socket) => { });
+io.on("connection", (socket) => {
+
+    //user authentication
+    const userID = socket.request.session?.passport?.user //session & passport may not always exist, so we add .? to avoid server crash
+
+    if (!userID) {
+        socket.disconnect();
+        return
+    }
+
+    socket.join(`user:${userID}`) // a socket must join its own room on instantiation
+
+    //attach identity to a socket object
+    socket.userId = userID
+
+    //EVENTS
+
+    //COMMENTS FOR MY UNDERSTANDING
+    //If socket A sends the data, then on the server the socket.on(...) handler that runs is the one attached to socket A — which
+    //  is why socket.userId is the sender’s ID.
+
+    socket.on("chat-message", (data) => {
+        //connect the socket server to the other sockets with userid in the brackets
+        //since we are running the socket.on(...) handler that corresponds to the sender we can pull the sender id with socket.id
+        const senderID = socket.userId
+        const recieverID = data.recipientId
+
+        io.to(`user:${recieverID}`).emit("chat-message", {
+            message: data.message,
+            userId: senderID
+        })
+        //We also want the sender to see their own messages like normal chats so send to themselves
+        io.to(`user:${senderID}`).emit("chat-message", {
+            message: data.message,
+            userId: senderID,
+        })
+
+    })
+});
 
 httpServer.listen(5000);
 
@@ -26,14 +64,17 @@ app.set("view engine", "ejs")
 app.use(express.static("public"))
 
 app.use(express.urlencoded({ extended: false }))
-app.use(session({
+
+const sessionMiddleware = session({
     secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
+})
+app.use(sessionMiddleware)
 
-    resave: false, //we dont want to resave variables if nothing has changed
-
-    saveUninitialized: false // we dont want to resave if no values are placed 
-}))
-
+io.use((socket, next) => {
+    sessionMiddleware(socket.request, {}, next)
+})
 app.use(passport.initialize())
 app.use(passport.session())
 
@@ -466,5 +507,7 @@ function checkPreferences(req, res, next) {
     )
 }
 
+//GOAL
 
+//write logic that recieves chat-message events and figures out who sends them and forwards them to the correct user
 

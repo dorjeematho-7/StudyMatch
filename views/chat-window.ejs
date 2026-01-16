@@ -2,17 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Chat with <%= typeof otherUser !== 'undefined' ? otherUser.username : 'User' %> – StudyMatch</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with <%= otherUser.username %> – StudyMatch</title>
     <link rel="stylesheet" href="/styles.css">
     <script src="/socket.io/socket.io.js"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            position: relative;
         }
 
         .header-container {
@@ -23,7 +29,6 @@
             z-index: 1000;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: saturate(180%) blur(20px);
-            -webkit-backdrop-filter: saturate(180%) blur(20px);
             border-bottom: 1px solid rgba(0, 0, 0, 0.06);
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
@@ -40,9 +45,7 @@
         .logo {
             font-size: 21px;
             font-weight: 600;
-            color: #1d1d1f;
             text-decoration: none;
-            letter-spacing: -0.022em;
             background: linear-gradient(135deg, #0071e3 0%, #0051d5 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -59,7 +62,7 @@
             font-size: 17px;
             color: #1d1d1f;
             border-radius: 980px;
-            transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 150ms ease;
             text-decoration: none;
         }
 
@@ -71,8 +74,6 @@
         main {
             flex: 1;
             padding: 100px 24px 80px;
-            position: relative;
-            z-index: 1;
             display: flex;
             flex-direction: column;
         }
@@ -84,7 +85,6 @@
             height: calc(100vh - 200px);
             display: flex;
             flex-direction: column;
-            animation: fadeIn 0.6s ease-out;
         }
 
         .chat-header {
@@ -102,15 +102,7 @@
             font-size: 28px;
             color: white;
             font-weight: 700;
-            letter-spacing: -0.003em;
             margin: 0;
-        }
-
-        .chat-header p {
-            font-size: 15px;
-            color: rgba(255, 255, 255, 0.9);
-            margin: 4px 0 0 0;
-            font-weight: 400;
         }
 
         .back-button {
@@ -120,12 +112,11 @@
             border-radius: 980px;
             color: white;
             font-size: 15px;
-            transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 300ms ease;
         }
 
         .back-button:hover {
             background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.5);
         }
 
         .messages-container {
@@ -223,7 +214,7 @@
             resize: none;
             background: #ffffff;
             color: #1d1d1f;
-            transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 300ms ease;
         }
 
         .chat-input:focus {
@@ -241,7 +232,7 @@
             font-size: 17px;
             font-weight: 400;
             cursor: pointer;
-            transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 300ms ease;
         }
 
         .send-button:hover:not(:disabled) {
@@ -260,8 +251,6 @@
             text-align: center;
             border-top: 1px solid rgba(0, 0, 0, 0.06);
             background: #ffffff;
-            position: relative;
-            z-index: 1;
         }
 
         footer p {
@@ -272,7 +261,7 @@
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(10px);
             }
             to {
                 opacity: 1;
@@ -316,10 +305,7 @@
     <main>
         <div class="chat-container">
             <div class="chat-header">
-                <div>
-                    <h1>Chat with <%= typeof otherUser !== 'undefined' ? otherUser.username : 'User' %></h1>
-                    <p>Study Partner Chat</p>
-                </div>
+                <h1>Chat with <%= otherUser.username %></h1>
                 <a href="/chat" class="back-button">← Back to Chats</a>
             </div>
 
@@ -347,44 +333,57 @@
     </footer>
 
     <script>
+        // Get user data from backend (passed via EJS)
+        const currentUserId = parseInt(<%= user.id %>);
+        const otherUserId = parseInt(<%= otherUser.id %>);
+
         // DOM elements
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
         const messagesContainer = document.getElementById('messagesContainer');
         const emptyState = document.getElementById('emptyState');
-        const currentUserId = <%= user ? user.id : null %>;
-        const otherUserId = <%= typeof otherUser !== 'undefined' ? otherUser.id : null %>;
 
         // Connect to Socket.IO
         const socket = io();
 
         // Handle connection
-        socket.on('connect', () => {
-            console.log('Connected to server via Socket.IO');
+        socket.on('connect', function() {
+            console.log('Connected to Socket.IO server');
         });
 
-        socket.on('disconnect', () => {
-            console.log('Disconnected from server');
+        socket.on('disconnect', function() {
+            console.log('Disconnected from Socket.IO server');
         });
 
-        // Listen for incoming messages
-        socket.on('chat-message', (data) => {
-            console.log('Message received:', data);
-            // Only show messages in this chat if they're from/for the current conversation
-            if (data.userId === currentUserId || data.userId === otherUserId) {
-                addMessageToUI(data.message, data.userId === currentUserId);
+        // Listen for incoming messages from the server
+        socket.on('chat-message', function(data) {
+            console.log('Received message:', data);
+            
+            // Convert userId to integer for comparison
+            const messageUserId = parseInt(data.userId);
+            
+            // Verify the message is for this conversation
+            // Messages should be from either the current user or the other user
+            if (messageUserId === currentUserId || messageUserId === otherUserId) {
+                // Determine if this message was sent by the current user
+                const isSent = messageUserId === currentUserId;
                 
-                // Hide empty state if it exists
+                // Add message to UI
+                addMessageToUI(data.message, isSent);
+                
+                // Hide empty state
                 if (emptyState) {
                     emptyState.style.display = 'none';
                 }
+            } else {
+                console.log('Message filtered - not for this conversation');
             }
         });
 
         // Auto-resize textarea
         messageInput.addEventListener('input', function() {
             this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
+            this.style.height = this.scrollHeight + 'px';
         });
 
         // Handle Enter key (Shift+Enter for new line)
@@ -399,7 +398,8 @@
         function sendMessage() {
             const message = messageInput.value.trim();
             
-            if (!message) {
+            // Validate message
+            if (!message || !otherUserId) {
                 return;
             }
 
@@ -408,7 +408,8 @@
             sendButton.disabled = true;
             sendButton.textContent = 'Sending...';
 
-            // Emit message via Socket.IO
+            // Emit message to server via Socket.IO
+            // Backend will forward this to both the sender and receiver
             socket.emit('chat-message', {
                 message: message,
                 recipientId: otherUserId
@@ -431,7 +432,7 @@
 
             // Create message element
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+            messageDiv.className = 'message ' + (isSent ? 'sent' : 'received');
 
             const bubbleDiv = document.createElement('div');
             bubbleDiv.className = 'message-bubble';
@@ -439,7 +440,8 @@
 
             const infoDiv = document.createElement('div');
             infoDiv.className = 'message-info';
-            infoDiv.textContent = new Date().toLocaleTimeString();
+            const now = new Date();
+            infoDiv.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             messageDiv.appendChild(bubbleDiv);
             messageDiv.appendChild(infoDiv);
@@ -455,7 +457,9 @@
         sendButton.addEventListener('click', sendMessage);
 
         // Scroll to bottom on load
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
     </script>
 </body>
 </html>
