@@ -25,7 +25,9 @@ StudyMatch uses a secure, session-based authentication system to manage user acc
 
 Furthermore, there is also password and email checks that ensure the user is entering a valid email and password, for example, the user cannot leave the password and email boxes blank or must enter a number of characters within a certain valid range
 
-<img width="200" height="400" alt="image" src="https://github.com/user-attachments/assets/8e098c4e-b655-4a4b-9b95-af39cecf93b5" />
+<img width="500" height="800" alt="image" src="https://github.com/user-attachments/assets/7ec3f877-f899-488e-b9fb-143f55eb9ea2" />
+
+
 
 **User Matching:**
 Once logged in, users have the option to browse for other users with similar study preferences, of course, this page is only a rough draft and throughout the following semester many more feautures will be added such as profile pictures, improved visuals and more
