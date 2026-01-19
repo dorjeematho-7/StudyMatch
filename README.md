@@ -14,7 +14,8 @@ Below is the front page:
 
 Quick Note: The goal of this project was to deepen my understanding of backend engineering, and so the front end was written with the aid of AI tools.
 
-<img width="1891" height="862" alt="image" src="https://github.com/user-attachments/assets/fbcc2df1-99c7-4147-98fe-1ad7f566313d" />
+<img width="1819" height="862" alt="image" src="https://github.com/user-attachments/assets/907da891-630d-463f-818f-e4cd2ae441d1" />
+
 
 **The user authentication process:**
 StudyMatch uses a secure, session-based authentication system to manage user access. When a user registers, their password is securely hashed before being stored in the PostgreSQL database. During login, user credentials are authenticated on the server using the passport-local strategy, which then sends the sessionID to the browser cookie for the passport serialization process. Upon successful authentication, a server-side session is established via Passport.js and express-session, allowing users to remain logged in across requests using a session identifier rather than sensitive data. Access to protected routes is restricted to authenticated users, ensuring that only logged-in students can view profiles, send study connection requests, and interact with platform features. On each authenticated request, Passport.js uses deserializeUser to load the user data and attach it to the HTTP request object as req.user.
