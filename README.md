@@ -43,12 +43,12 @@ A table was formed by utilizing
 
 When a user has sent a friend request, the recipient may see the request by selecting the friend request button at the top of the user matching page
 
-<img width="300" height="600" alt="image" src="https://github.com/user-attachments/assets/276ea515-6588-4e00-a498-dbc1a69784d8" />
+<img width="800" height="600" alt="image" src="https://github.com/user-attachments/assets/276ea515-6588-4e00-a498-dbc1a69784d8" />
 
 **User Messaging**
 Once two users have been matched, a chat feature will pop up as shown below
 
-<img width="400" height="400" alt="image" src="https://github.com/user-attachments/assets/3ac17c39-8713-4539-81a0-176f590c5cc6" />
+<img width="700" height="400" alt="image" src="https://github.com/user-attachments/assets/3ac17c39-8713-4539-81a0-176f590c5cc6" />
 
 This feature was straightforward to implement. I queried the friend_requests table for records with an 'accepted' status, joined them with the users table to retrieve usernames, and constructed an array containing each connected user’s ID and username.  
 
